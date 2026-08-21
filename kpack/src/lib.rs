@@ -55,7 +55,7 @@ impl Opcode {
     /// # Returns
     /// * `Option<Opcode>` - Returns `Some(Opcode)` if the value is valid, otherwise returns `None`.
     #[must_use]
-    pub const fn from_u8(value: u8) -> core::option::Option<Self> {
+    pub const fn from_u8(value: u8) -> Option<Self> {
         match value {
             LIT_OPCODE => Some(Self::Lit),
             DELTA_OPCODE => Some(Self::Delta),
@@ -354,7 +354,7 @@ pub fn execute(
     param: u32,
     payload: &[u8],
     output_buffer: &mut [u8],
-    reference_buffer: core::option::Option<&[u8]>,
+    reference_buffer: Option<&[u8]>,
 ) {
     match opcode {
         Opcode::Lit => execute_lit(param, payload, output_buffer),

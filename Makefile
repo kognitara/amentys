@@ -255,10 +255,10 @@ define test_packages
 		printf "\r$$pad_str$(C_INFO)%-15s$(C_RESET)  %-8s  %-8s  %-8s  %-8s  %-8s  %-8s  %-8s  %s" "$$pkg" "$$bd" "unknown " "unknown " "unknown " "unknown " "unknown " "unknown " " unknown  "; \
 		if [ "$$pkg" = "re" ]; then flags="$(CLIPPY_KERNEL_FLAGS)"; else flags="$(CLIPPY_USER_FLAGS)"; fi; \
 		if [ "$$pkg" != "re" ] && [ "$$pkg" != "maat" ] && [ "$$pkg" != "ji" ] && [ "$$pkg" != "zuu" ] && [ "$$pkg" != "hu" ]; then \
-			$(CARGO) test -p $$pkg --lib --release --jobs=$$(nproc) > ci/stdout/$$pkg/test.log 2> ci/stderr/$$pkg/test.log || test=1; \
+			$(CARGO) test -p $$pkg --lib --release --jobs $(NUM_JOBS) > ci/stdout/$$pkg/test.log 2> ci/stderr/$$pkg/test.log || test=1; \
 		fi; \
-		$(CARGO) check -p $$pkg --lib --release --jobs=$$(nproc) > ci/stdout/$$pkg/check.log 2> ci/stderr/$$pkg/check.log || check=1; \
-		$(CARGO) clippy -p $$pkg --release --jobs=$$(nproc) -- $$flags > ci/stdout/$$pkg/clippy.log 2> ci/stderr/$$pkg/clippy.log || clippy=1; \
+		$(CARGO) check -p $$pkg --lib --release --jobs $(NUM_JOBS) > ci/stdout/$$pkg/check.log 2> ci/stderr/$$pkg/check.log || check=1; \
+		$(CARGO) clippy -p $$pkg --release --jobs $(NUM_JOBS) -- $$flags > ci/stdout/$$pkg/clippy.log 2> ci/stderr/$$pkg/clippy.log || clippy=1; \
 		$(CARGO) fmt -p $$pkg -- --check > ci/stdout/$$pkg/fmt.log 2> ci/stderr/$$pkg/fmt.log || fmt=1; \
 		$(CARGO) machete $$pkg > ci/stdout/$$pkg/machete.log 2> ci/stderr/$$pkg/machete.log || machete=1; \
 		if [ "$$test" -eq 0 ] && [ "$$check" -eq 0 ] && [ "$$clippy" -eq 0 ] && [ "$$fmt" -eq 0 ] && [ "$$machete" -eq 0 ]; then \

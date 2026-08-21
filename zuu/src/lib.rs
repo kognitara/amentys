@@ -41,7 +41,6 @@ impl Zuu {
     /// # Returns
     /// * `bool` - Returns true if the system is under attack, false otherwise
     pub fn is_under_attack(&self) -> bool {
-        // Aspiration atomique et remise à zéro
         let irq_burst = NETWORK_IRQ_COUNTER.swap(0, Ordering::Relaxed);
         irq_burst > self.pressure_threshold
     }
