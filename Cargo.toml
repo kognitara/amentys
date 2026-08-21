@@ -1,14 +1,20 @@
 [workspace]
 members = [
-    "awq", "hu", "ji",
+    "awq",
+    "hu",
+    "ji",
     "jinshu",
     "kpack",
     "maat",
     "noun",
     "plan",
-    "prism", "pulse",
+    "prism",
+    "pulse",
     "ra",
-    "re", "thot", "wa", "we", "zuu",
+    "re",
+    "thot",
+    "wa",
+    "zuu",
 ]
 resolver = "3"
 

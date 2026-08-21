@@ -595,16 +595,6 @@ name = "wa"
 version = "0.1.0"
 
 [[package]]
-name = "we"
-version = "0.1.0"
-dependencies = [
- "heapless",
- "jinshu",
- "kpack",
- "wa",
-]
-
-[[package]]
 name = "x25519-dalek"
 version = "3.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
