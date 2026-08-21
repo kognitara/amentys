@@ -1,0 +1,13 @@
+[package]
+name = "we"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+wa = { path = "../wa", version = "0.1.0", default-features = false, features = [
+] }
+kpack = { path = "../kpack", version = "0.1.0", default-features = false, features = [
+] }
+jinshu = { path = "../jinshu", version = "0.1.0", default-features = false, features = [
+] }
+heapless = { version = "0.9.3", default-features = false, features = [] }

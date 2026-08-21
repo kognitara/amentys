@@ -1,0 +1,168 @@
+AMENTYS SOURCE-AVAILABLE LICENSE (ASAL)
+
+Copyright (c) 2026 Willy Micieli. All rights reserved.
+
+PREAMBLE: THE AMENTYS PHILOSOPHY
+
+Amentys is not a traditional operating system.
+
+It is designed as an inseparable monolith, merging its kernel, storage system, and user interface into a single entity.
+
+To prevent the fragmentation that divides software engineering (the "Linux syndrome"), this license explicitly
+prohibits the creation of derivative distributions (public "forks").
+
+The goal is to focus the community's entire energy on a single, unified official system.
+
+ARTICLE 1: FREE AND UNIVERSAL USE
+
+This software is free by default.
+
+The Original Author (Willy Micieli) grants any person (individuals, companies, institutions) the free, perpetual, and
+non-exclusive right to read, study, compile, and use the source code and the compiled software, without distinction
+between consumer and enterprise use, subject to compliance with all provisions of this License.
+
+ARTICLE 2: PROHIBITION OF COMMERCIALIZATION AND COMMERCIAL HOSTING
+
+Exclusive Rights: Only the Original Author holds the exclusive right to sell the software, derive direct financial profit from it, or offer it as a
+commercial service.
+Prohibited Commercial Activities: It is strictly prohibited for any other natural or legal person to sell the original
+software, sell modified versions, or demand payment for access to this code or its derivatives.
+
+Cloud, SaaS, and Hosting Restrictions: You may not provide the Software, whether modified or unmodified, as a
+commercial service, including but not limited to Software-as-a-Service (SaaS), Platform-as-a-Service (PaaS),
+Infrastructure-as-a-Service (IaaS), or managed hosting services, where the core value or functionality of the service
+is derived from the Software.
+
+ARTICLE 3: ANTI-FRAGMENTATION POLICY (NO FORK)
+
+To ensure the project's unity, the public distribution of modified, stripped-down, or derivative versions of Amentys
+is strictly prohibited.
+
+You are not authorized to publish a public "fork" of the project (for example, by replacing the official interface with
+another, or by creating a separate distribution under a different name).ARTICLE 4: INTERNAL MODIFICATIONS AND PRIVACY BOUNDARIES
+Private Use: You are permitted to modify the source code for your strictly private and internal use, provided that
+such modifications are never publicly distributed.
+
+Corporate and Enterprise Scope: For legal entities, "internal use" is strictly limited to deployments within the
+same legal entity, accessible only by its own employees and direct contractors for internal operations. Distribution
+or deployment to distinct legal entities, corporate affiliates, subsidiaries, external subcontractors, or third-party
+clients is considered public distribution and is strictly prohibited.
+
+Contribution to the Common Good: If you develop a modification, improvement, or feature that you wish to
+make public, it MUST be submitted to the official Amentys repository (via a "Pull Request" or a patch). Any such
+public submission is automatically governed by the assignment of rights detailed in Article 5.
+
+ARTICLE 5: ASSIGNMENT OF CONTRIBUTION RIGHTS AND WARRANTIES
+
+Grant of Rights: By submitting a contribution (including but not limited to code, documentation, graphics, or
+design) to the official repository, the contributor grants the Original Author an irrevocable, worldwide, perpetual,
+non-exclusive, and royalty-free license to use, modify, integrate, distribute, sublicense, and commercialize that
+contribution within the scope of the Amentys project.
+
+Contributor Warranty: The contributor warrants that they are the sole author of the contribution or possess all
+necessary legal rights and clearances to submit the contribution under these terms, ensuring it does not infringe
+upon any third-party intellectual property or open-source license.
+
+ARTICLE 6: TERMINATION UPON VIOLATION
+
+Any breach or non-compliance with any term, condition, or restriction of this License shall automatically and
+immediately terminate all rights granted to you hereunder, without prior notice or putting in default.
+Upon termination, you must immediately cease all use of the Software and destroy all copies, modified or
+unmodified, in your possession.
+
+ARTICLE 7: LIMITATION OF LIABILITY
+
+THE SOFTWARE IS PROVIDED "AS IS," WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+INCLUDING BUT NOT LIMITED TO WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+PARTICULAR PURPOSE, AND NON-INFRINGEMENT. IN NO EVENT SHALL THE AUTHOR BE LIABLE
+FOR ANY CLAIMS, DAMAGES, OR OTHER LIABILITIES ARISING FROM THE USE OF THE SOFTWARE.ARTICLE 8: TRADEMARKS AND VISUAL IDENTITY
+This license does not grant any permission to use the trade names, trademarks, service marks, logos, or product
+names of the Original Author or the Amentys project, except as required for reasonable and customary use in
+describing the origin of the Software.
+
+ARTICLE 9: PATENT LICENSE AND RETALIATION
+
+Patent Grant: By contributing to the project, each contributor grants to the Original Author and to all users of the
+Software a perpetual, worldwide, non-exclusive, no-charge, royalty-free, irrevocable patent license to make, have
+made, use, offer to sell, sell, import, and otherwise transfer the Software.
+
+Patent Retaliation: If you or your legal entity initiate patent litigation against the Original Author or any other user
+claiming that the Software (including any contribution integrated into it) constitutes direct or contributory patent
+infringement, then any patent and software licenses granted to you under this License shall terminate automatically
+and immediately as of the date such litigation is filed.
+
+ARTICLE 10: ATTRIBUTION AND COPYRIGHT NOTICES
+
+Any copy of the Software, whether unmodified or modified for permitted internal private use, must retain this
+original license text, all copyright notices, and the name of the Original Author (Willy Micieli) intact within the
+source code.
+
+ARTICLE 11: THIRD-PARTY COMPONENTS
+
+The Software may bundle or rely on third-party libraries, modules, or drivers that are subject to separate, distinct
+open-source licenses.
+
+Those third-party license terms govern the respective components exclusively and supersede this License solely
+regarding those specific external components.
+
+ARTICLE 12: SEVERABILITY
+
+If any provision of this License is held to be invalid, illegal, or unenforceable by a court of competent jurisdiction,
+such provision shall be modified to the minimum extent necessary to make it enforceable, or severed from this
+License if modification is not possible. The remaining provisions of this License shall remain in full force and
+effect.
+
+ARTICLE 13: GOVERNING LAW AND JURISDICTION
+
+This License shall be governed by and construed in accordance with the laws of France, without regard to its
+conflict of law principles. Any legal action, dispute, or proceeding arising under or in connection with this License
+shall be brought exclusively before the competent courts of France.ARTICLE 14: AGE RESTRICTION AND MINOR USAGE LIABILITY
+Adult Use Only: The Software is exclusively intended and designed for use by individuals who have reached the
+legal age of majority in their respective jurisdictions. It is not directed at, nor intended for, minors.
+
+Transfer of Liability: The Original Author expressly disclaims any and all legal, financial, or administrative
+responsibility regarding the use of this Software by minors. This includes, but is not limited to, compliance with
+child protection regulations, data collection laws, or age verification mandates (such as COPPA, CalOPPA, CPRA,
+or the GDPR age of consent provisions).
+
+OEM and Guardian Responsibility: Any distributor, Original Equipment Manufacturer (OEM), hardware vendor,
+or third-party entity pre-installing or selling systems equipped with the Software is strictly and solely responsible
+for verifying the legal age of the end purchaser. In the context of private, non-commercial use, this responsibility
+falls entirely upon the parents or legal guardians who grant a minor access to the Software. In the event of a breach,
+violation, or legal dispute relating to the age of the user, all liability rests exclusively with the distributor, vendor, or
+legal guardian, who agree to fully indemnify and hold harmless the Original Author.
+
+ARTICLE 15: NON-EXTRACTION AND INDIVISIBILITY OF CORE TECHNOLOGIES
+
+Indivisible Monolith: The Software is licensed as a single, highly integrated, and indivisible product. Its core
+technologies, subsystems, libraries, and proprietary engines—including, but not limited to, the jinshu architecture,
+the kpack system, the SemanticRouter, and the tiered CAS memory management—are fundamentally tied to the
+Amentys ecosystem.
+
+Prohibition of Extraction (Anti-Poaching): You are strictly prohibited from decoupling, isolating, extracting, or
+reverse-engineering these specific internal components or technologies for the purpose of using them
+independently, integrating them into other operating systems, or packaging them as standalone libraries outside of
+the official Amentys environment.
+
+Protection of Specific Innovations: Any attempt to strip the Software of its core innovations to power external
+projects, commercial or non-commercial, constitutes a direct violation of this License and an infringement of the
+Original Author's intellectual property.
+
+ARTICLE 16: HARDWARE VENDOR COMPLIANCE AND ZERO BLACK-BOX POLICY
+
+Declarative Hardware Interfaces (No Binary Blobs): To ensure absolute security and user sovereignty, Amentys
+does not permit the execution of closed-source, compiled binary drivers ("blobs") within its core architecture.
+Hardware manufacturers and Original Equipment Manufacturers (OEMs) wishing to interface with the Software
+MUST provide their hardware translation layers strictly as transparent, inert, and declarative semantic maps
+(Refraction Plans), as defined by the Amentys documentation.
+
+Prohibition of Telemetry and Data Exfiltration: Hardware interfaces, drivers, and translation maps submitted by
+manufacturers must contain ZERO executable logic capable of intercepting, storing, or transmitting user data (e.g.,keystrokes, framebuffers, audio streams, memory states). Any inclusion of telemetry, spyware, or undocumented
+data exfiltration mechanisms constitutes a severe breach of this License.
+
+European Sovereignty and Strict Liability: If a hardware partner or manufacturer intentionally or negligently
+introduces malicious logic or hidden surveillance capabilities into their Amentys-compatible interface, they will be
+held strictly liable under European cybersecurity and data protection laws. The Original Author and the governing
+legal entity (SASU) reserve the right to immediately revoke the manufacturer's certification, block their hardware
+components across the Amentys ecosystem via semantic blacklisting, and seek unlimited financial damages for
+breach of trust and ecosystem endangerment.

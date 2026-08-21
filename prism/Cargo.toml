@@ -1,0 +1,22 @@
+[package]
+edition = "2024"
+name = "prism"
+description = "A sandbox for the Amentys project"
+version = "0.1.0"
+
+[lib]
+bench = false
+doctest = true
+name = "prism"
+path = "src/lib.rs"
+test = true
+
+[dependencies]
+plan = { path = "../plan", version = "0.1.0", default-features = false, features = [
+] }
+jinshu = { path = "../jinshu", version = "0.1.0", default-features = false, features = [
+] }
+ra = { path = "../ra", version = "0.1.0", default-features = false, features = [
+] }
+awq = { path = "../awq", version = "0.1.0", default-features = false, features = [
+] }

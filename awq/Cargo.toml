@@ -1,0 +1,15 @@
+[package]
+edition = "2024"
+name = "awq"
+version = "0.1.0"
+
+[lib]
+bench = false
+doctest = true
+name = "awq"
+path = "src/lib.rs"
+test = true
+
+[dependencies]
+heapless = {version = "0.9.3", features = []}
+noun = {version = "0.1.0", path = "../noun"}
