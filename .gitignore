@@ -4,4 +4,6 @@ ci
 *.bin
 ISO
 *.crate
-
+.crates2.json
+.crates.toml
+nvme-1.img
