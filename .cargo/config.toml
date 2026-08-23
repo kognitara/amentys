@@ -18,7 +18,6 @@ build-dir = "target"          # path of where to place intermediate build artifa
 [doc]
 browser = "vivaldi"           # browser to use with `cargo doc --open`,
                               # overrides the `BROWSER` environment variable
-
 [future-incompat-report]
 frequency = 'always' # when to display a notification about a future incompat report
 

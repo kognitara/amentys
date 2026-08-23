@@ -8,8 +8,8 @@ QEMU := sudo qemu-system-x86_64
 OVMF_PATH := /usr/share/edk2/ovmf/OVMF_CODE.fd
 IMAGE_PATH := target/amentys-uefi.img
 ISO_PATH := target/amentys.iso
-TIMEOUT := 180
-SUB_PROC := 4
+TIMEOUT := 300
+SUB_PROC := 2
 
 ifeq ($(SUB_PROC), 0)
   SUB_PROC := 2
@@ -147,8 +147,8 @@ documentation: ## Generate the Rust documentation for the project
 	@$(call enable_cursor)
 
 debug: ## Display detected packages and CPU cores used for compilation
-	echo -e "Detected packages  : $(C_OK)$(PACKAGES)$(C_RESET)"
-	echo -e "Detected cpu cores : $(C_OK)$(NUM_JOBS)$(C_RESET) cpus used for compilation"
+	@echo -e "Detected packages  : $(C_OK)$(PACKAGES)$(C_RESET)"
+	@echo -e "Detected cpu cores : $(C_OK)$(NUM_JOBS)$(C_RESET) cpus used for compilation"
 
 # Macro to clean logs
 define clean_logs
@@ -278,7 +278,11 @@ define test_packages
 			status=1; \
 		fi; \
 	done; \
-	printf "\n$$pad_str$(C_INFO)%-15s$(C_RESET)\n\n" "completed"; \
+	if [ $$status -eq 0 ]; then \
+		printf "\n$$pad_str$(C_OK)%-15s$(C_RESET)\n\n" "All tests passed successfully!"; \
+	else \
+		printf "\n$$pad_str$(C_KO)%-15s$(C_RESET)\n\n" "Some tests failed! Check the logs in ci/stdout and ci/stderr."; \
+	fi; \
 	exit $$status
 endef
 

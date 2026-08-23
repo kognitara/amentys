@@ -1,8 +1,8 @@
 # Contributing to Amentys
 
-Thank you for your interest in Amentys! 
+Thank you for your interest in Amentys!
 
-Because Amentys is designed as an inseparable monolith (kernel, storage, and user interface merged into a single entity), 
+Because Amentys is designed as an inseparable monolith (kernel, storage, and user interface merged into a single entity),
 our contribution workflow is strictly tailored to protect the project's unity and prevent fragmentation.
 
 By contributing to Amentys, you help build a single, unified, and powerful official ecosystem.
@@ -13,14 +13,14 @@ Before submitting any code, documentation, or design, please be aware that Ament
 
 By submitting a Pull Request (PR) or a patch, you explicitly agree to the following terms (as detailed in Article 5 and Article 9 of the ASAL):
 
-Assignment of Rights: 
+Assignment of Rights:
   
-You grant the Original Author (Willy Micieli / Saigo Ekitae) an irrevocable, worldwide, perpetual, and royalty-free license to use, 
+You grant the Original Author (Willy Micieli / Saigo Ekitae) an irrevocable, worldwide, perpetual, and royalty-free license to use,
 modify, integrate, distribute, and commercialize your contribution.
 
-Developer Certificate of Origin (DCO): 
+Developer Certificate of Origin (DCO):
 
-You warrant that you are the sole author of the submitted modification or that you possess all necessary legal clearances to release it. 
+You warrant that you are the sole author of the submitted modification or that you possess all necessary legal clearances to release it.
 
 You guarantee that your code does not violate third-party intellectual property or incompatible open-source licenses.
 
@@ -48,11 +48,11 @@ Open a new Issue describing the problem or the feature in detail.
 
 For feature requests, explain how it fits into the unified Amentys architecture without breaking the monolith concept.
 
-2. Proposing Changes (Pull Requests)
+1. Proposing Changes (Pull Requests)
 
-To submit code or documentation changes, follow these steps:Keep it Monolithic: 
+To submit code or documentation changes, follow these steps:Keep it Monolithic:
 
-Ensure your feature integrates seamlessly into the unified kernel/storage/UI structure. 
+Ensure your feature integrates seamlessly into the unified kernel/storage/UI structure.
 
 Loose or independent components that promote modular fragmentation will be rejected.
 
