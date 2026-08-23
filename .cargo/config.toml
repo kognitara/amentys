@@ -15,9 +15,6 @@ target = "x86_64-unknown-none"     # build for the target triple (ignored by `ca
 target-dir = "target"         # path of where to place generated artifacts
 build-dir = "target"          # path of where to place intermediate build artifacts
 
-[doc]
-browser = "vivaldi"           # browser to use with `cargo doc --open`,
-                              # overrides the `BROWSER` environment variable
 [future-incompat-report]
 frequency = 'always' # when to display a notification about a future incompat report
 
@@ -29,11 +26,6 @@ vcs = "none"              # VCS to use ('git', 'hg', 'pijul', 'fossil', 'none')
 
 [install]
 root = "./"                # `cargo install` destination directory
-
-[net]
-retry = 3                   # network retries
-git-fetch-with-cli = true   # use the `git` executable for git operations
-offline = true              # do not access the network
 
 [term]
 quiet = false                    # whether cargo output is quiet

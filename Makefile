@@ -227,13 +227,13 @@ endef
 
 # Macro to generate and open the Rust documentation
 define run-doc
-	@RUST_TARGET_PATH=$(shell pwd) $(CARGO) doc --no-deps --document-private-items --open
+	@$(CARGO) doc --no-deps --document-private-items --open
 endef
 
 # Macro to generate the Rust documentation for the project
 define make_doc
 	@$(call center_text, Generating documentation)
-	@RUST_TARGET_PATH=$(shell pwd) $(CARGO) doc --no-deps --document-private-items --jobs $(NUM_JOBS) --release
+	$(CARGO) doc --no-deps --document-private-items --jobs $(NUM_JOBS) --release
 	@$(call center_text, Documentation generated in target/doc/)
 endef
 
