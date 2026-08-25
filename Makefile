@@ -81,7 +81,7 @@ CLIPPY_KERNEL_FLAGS := -D warnings \
                        -A clippy::panic \
                        -A clippy::expect_used
 
-.PHONY: help ci clean run bootimage iso run-iso image up documentation doc
+.PHONY: help ci clean run bootimage iso run-iso image up documentation doc demo
 
 # Terminal display color codes
 C_RESET := \033[0m
@@ -93,6 +93,9 @@ help: ## Print this help list with all available commands
 	@$(call center_text,Amentys OS)
 	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "  \033[1;32m%-15s\033[1;37m %s\033[0m\n", $$1, $$2}' $(MAKEFILE_LIST)
 	@echo ""
+
+demo:
+	@python3 -m http.server -d demo/
 ci_all:
 	@$(call test_packages)
 # Nouvelle target avec timeout de 30 secondes

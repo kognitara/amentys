@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Amentys - Prototype TUI/GUI</title>
+    <style>
+        /* Réinitialisation totale et immersion */
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: #050505;
+            color: #888;
+            font-family: 'Courier New', Courier, monospace;
+            overflow: hidden;
+        }
+
+        /* La grille fondamentale 2x2 sans aucune gouttière */
+        #tesseract-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Le Panneau projecteur */
+        .panel {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            outline: none; /* Pas de bordure par défaut */
+            background-color: #0a0a0a;
+            transition: background-color 0.1s ease;
+        }
+
+        /* Indicateur très subtil du focus (remplace la bordure) */
+        .panel:focus, .panel.active {
+            background-color: #121212;
+            box-shadow: inset 0 0 0 1px #222; /* Ligne fantôme juste pour savoir où on est */
+        }
+
+        /* Coordonnées algébriques de qwx */
+        .coords {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 14px;
+            color: #555;
+        }
+
+        /* Le contenu projeté */
+        .content {
+            font-size: 1.5rem;
+            color: #333;
+            user-select: none;
+        }
+
+        /* Le dmenu (Overlay) */
+        #dmenu {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 500px;
+            background: #000;
+            border: 1px solid #333;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.9);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #dmenu.hidden {
+            display: none;
+        }
+
+        /* Barre de saisie chirurgicale */
+        #dmenu input {
+            background: #0d0d0d;
+            color: #00ffcc; /* Une touche de couleur pour le focus */
+            border: none;
+            border-bottom: 1px solid #222;
+            padding: 15px 20px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 16px;
+            outline: none;
+        }
+
+        /* Liste des Plans (Filtrage) */
+        #dmenu ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            max-height: 250px;
+            overflow-y: auto;
+        }
+
+        #dmenu ul li {
+            padding: 12px 20px;
+            border-bottom: 1px solid #111;
+            color: #aaa;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        #dmenu ul li.selected {
+            background: #1a1a1a;
+            color: #fff;
+            border-left: 3px solid #00ffcc;
+        }
+
+        .tag {
+            color: #555;
+            font-size: 0.85em;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="tesseract-grid">
+        <div class="panel" tabindex="0" id="panel-0">
+            <div class="coords">% 1¹</div>
+            <div class="content">Vide</div>
+        </div>
+        <div class="panel" tabindex="0" id="panel-1">
+            <div class="coords">% 1²</div>
+            <div class="content">Vide</div>
+        </div>
+        <div class="panel" tabindex="0" id="panel-2">
+            <div class="coords">% 1³</div>
+            <div class="content">Vide</div>
+        </div>
+        <div class="panel" tabindex="0" id="panel-3">
+            <div class="coords">% 1⁴</div>
+            <div class="content">Vide</div>
+        </div>
+    </div>
+
+    <!-- Interface du Menu Overlay -->
+    <div id="dmenu" class="hidden">
+        <input type="text" id="dmenu-input" placeholder="Rechercher un plan (ex: net, log, dev)..." autocomplete="off">
+        <ul id="dmenu-list"></ul>
+    </div>
+
+    <script>
+        const panels = document.querySelectorAll('.panel');
+        const dmenu = document.getElementById('dmenu');
+        const dmenuInput = document.getElementById('dmenu-input');
+        const dmenuList = document.getElementById('dmenu-list');
+
+        let activePanel = panels[0];
+        activePanel.focus();
+
+        // La base de données de nos Nœuds/Plans
+        const amentysPlans = [
+            { name: "qwx_terminal", tags: "dev shell core" },
+            { name: "jinshu_graph", tags: "db vector data" },
+            { name: "net_monitor", tags: "net ping trace" },
+            { name: "audio_mixer", tags: "media sound" },
+            { name: "system_logs", tags: "sys admin log" }
+        ];
+
+        // Gestion basique du focus à la souris (pour le proto)
+        panels.forEach(p => {
+            p.addEventListener('click', () => {
+                activePanel = p;
+                p.focus();
+            });
+        });
+
+        // Gestion des raccourcis clavier
+        document.addEventListener('keydown', (e) => {
+            // Raccourci pour ouvrir le menu (Ctrl + Espace)
+            if (e.ctrlKey && e.code === 'Space') {
+                e.preventDefault();
+                dmenu.classList.remove('hidden');
+                dmenuInput.value = '';
+                renderDmenu('');
+                dmenuInput.focus();
+            }
+            
+            // Échap pour annuler et fermer le menu
+            if (e.code === 'Escape' && !dmenu.classList.contains('hidden')) {
+                dmenu.classList.add('hidden');
+                activePanel.focus();
+            }
+        });
+
+        // Filtrage en temps réel type "dmenu"
+        dmenuInput.addEventListener('input', (e) => {
+            renderDmenu(e.target.value);
+        });
+
+        // Simulation de sélection avec Entrée
+        dmenuInput.addEventListener('keydown', (e) => {
+            if (e.code === 'Enter') {
+                const selected = dmenuList.querySelector('.selected');
+                if (selected) {
+                    const planName = selected.getAttribute('data-name');
+                    activePanel.querySelector('.content').textContent = planName;
+                    activePanel.querySelector('.content').style.color = "#00ffcc";
+                    dmenu.classList.add('hidden');
+                    activePanel.focus();
+                }
+            }
+        });
+
+        function renderDmenu(query) {
+            dmenuList.innerHTML = '';
+            const q = query.toLowerCase();
+            
+            // Filtre par nom ou par tag
+            const filtered = amentysPlans.filter(p => 
+                p.name.toLowerCase().includes(q) || 
+                p.tags.toLowerCase().includes(q)
+            );
+            
+            filtered.forEach((p, index) => {
+                const li = document.createElement('li');
+                li.setAttribute('data-name', p.name);
+                
+                const nameSpan = document.createElement('span');
+                nameSpan.textContent = p.name;
+                
+                const tagSpan = document.createElement('span');
+                tagSpan.textContent = `[${p.tags}]`;
+                tagSpan.className = 'tag';
+                
+                li.appendChild(nameSpan);
+                li.appendChild(tagSpan);
+
+                // Auto-sélectionne le premier résultat pour la vitesse
+                if (index === 0) li.classList.add('selected');
+                dmenuList.appendChild(li);
+            });
+        }
+    </script>
+</body>
+</html>
