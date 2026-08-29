@@ -1,17 +1,28 @@
 name: Amentys
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
 env:
   CARGO_TERM_COLOR: always
+  TERM: xterm-256color
 jobs:
   build:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
     steps:
-    - uses: actions/checkout@v4
-    - name: deps
-      run: cargo install cargo-machete cargo-audit cargo-auditable cargo-deny
-    - name: ci
-      run: make ci
+      - uses: actions/checkout@v4
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@nightly
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential
+      - name: Install cargo tools
+        run: |
+          cargo install cargo-machete cargo-audit cargo-auditable cargo-deny
+      - name: Run CI
+        run: make ci
