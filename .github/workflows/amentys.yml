@@ -1,5 +1,4 @@
 name: Amentys
-
 on:
   push:
     branches: [ "main" ]
