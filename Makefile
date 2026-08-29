@@ -1,3 +1,5 @@
+SHELL := /bin/bash
+
 NVME_IMG := nvme-1.img
 NVME_SIZE := 50G
 CARGO := cargo
