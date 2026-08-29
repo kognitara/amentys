@@ -2,6 +2,8 @@
 name = "pulse"
 version = "0.1.0"
 edition = "2024"
+description = "Hardware entropy engine and cryptographic heartbeat for key rotation"
+keywords = ["pulse", "cryptography", "entropy", "security"]
 
 [dependencies]
 x86_64 = { version = "0.15.5", default-features = false, features = [

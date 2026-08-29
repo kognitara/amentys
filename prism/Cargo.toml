@@ -1,7 +1,8 @@
 [package]
 edition = "2024"
 name = "prism"
-description = "A sandbox for the Amentys project"
+description = "Execution runtime: interprets plans and materializes the sandbox"
+keywords = ["prism", "runtime", "sandbox", "execution"]
 version = "0.1.0"
 
 [lib]

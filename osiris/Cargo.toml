@@ -1,0 +1,11 @@
+[package]
+name = "osiris"
+version = "0.1.0"
+edition = "2024"
+description = "Guardian of transitions: process resurrection and state recovery"
+keywords = ["osiris", "resurrection", "transition", "recovery"]
+
+[dependencies]
+x86_64 = { version = "0.15.5", default-features = false, features = [
+    "instructions",
+] }

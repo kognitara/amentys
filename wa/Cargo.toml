@@ -2,7 +2,7 @@
 name = "wa"
 version = "0.1.0"
 edition = "2024"
+description = "Core utility layer: shared helpers, runtime primitives, and OS glue"
+keywords = ["wa", "utility", "runtime", "helpers"]
 
 [dependencies]
-heapless = { version = "0.9.3", default-features = false, features = ["zeroize"] }
-

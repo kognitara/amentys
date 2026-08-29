@@ -2,6 +2,8 @@
 name = "zuu"
 version = "0.1.0"
 edition = "2024"
+description = "Steganographic network layer: signal distortion and covert pressure"
+keywords = ["zuu", "network", "steganography", "pressure"]
 
 [dependencies]
 chacha20 = { version = "0.10.1", default-features = false, features = [

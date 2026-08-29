@@ -1,9 +1,10 @@
 [package]
-name = "hu"
+name = "cubefs"
 version = "0.1.0"
 edition = "2024"
-description = "Library package manager: assembles plan recipes from reusable modules"
-keywords = ["hu", "package", "manager", "plan"]
+description = "Deterministic COW filesystem using content-addressed Kpack recipes"
+keywords = ["cubefs", "cow", "filesystem", "storage"]
+
 [dependencies]
 x86_64 = { version = "0.15.5", default-features = false, features = [
     "instructions",

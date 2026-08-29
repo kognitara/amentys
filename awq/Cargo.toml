@@ -2,7 +2,8 @@
 edition = "2024"
 name = "awq"
 version = "0.1.0"
-
+description = "Branch ledger: manages immutable and ephemeral Merkle tree states"
+keywords = ["awq", "merkle", "branch", "ledger"]
 [lib]
 bench = false
 doctest = true

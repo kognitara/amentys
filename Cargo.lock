@@ -3,10 +3,22 @@
 version = 4
 
 [[package]]
+name = "abyss"
+version = "0.1.0"
+
+[[package]]
 name = "allocator-api2"
 version = "0.2.21"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "683d7910e743518b0e34f1186f92494becacb047c7b6bf616c96772180fef923"
+
+[[package]]
+name = "ammit"
+version = "0.1.0"
+
+[[package]]
+name = "anubis"
+version = "0.1.0"
 
 [[package]]
 name = "arrayvec"
@@ -137,6 +149,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "cubefs"
+version = "0.1.0"
+dependencies = [
+ "x86_64",
+]
+
+[[package]]
 name = "cursor-icon"
 version = "1.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -168,6 +187,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "douat"
+version = "0.1.0"
+
+[[package]]
 name = "equivalent"
 version = "1.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -190,6 +213,13 @@ name = "foldhash"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "77ce24cb58228fbb8aa041425bb1050850ac19177686ea6e0f41a70416f56fdb"
+
+[[package]]
+name = "hamon"
+version = "0.1.0"
+dependencies = [
+ "x86_64",
+]
 
 [[package]]
 name = "hash32"
@@ -219,7 +249,13 @@ checksum = "25ba4bd83f9415b58b4ed8dc5714c76e626a105be4646c02630ad730ad3b5aa4"
 dependencies = [
  "hash32",
  "stable_deref_trait",
- "zeroize",
+]
+
+[[package]]
+name = "horus"
+version = "0.1.0"
+dependencies = [
+ "x86_64",
 ]
 
 [[package]]
@@ -343,6 +379,13 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cf8baf1c55e62ffcace7a9f06f4bd9cd3f0c4beb022d3b367256b91b87513d98"
 
 [[package]]
+name = "nil"
+version = "0.1.0"
+dependencies = [
+ "noun",
+]
+
+[[package]]
 name = "noto-sans-mono-bitmap"
 version = "0.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -351,6 +394,14 @@ checksum = "f102c477fd4ec864c149803bf606ecc23bc9329602ec0f99073a728abf454abc"
 [[package]]
 name = "noun"
 version = "0.1.0"
+
+[[package]]
+name = "ocean"
+version = "0.1.0"
+dependencies = [
+ "heapless",
+ "noun",
+]
 
 [[package]]
 name = "os-terminal"
@@ -365,6 +416,13 @@ dependencies = [
  "pc-keyboard",
  "unicode-width",
  "vte",
+]
+
+[[package]]
+name = "osiris"
+version = "0.1.0"
+dependencies = [
+ "x86_64",
 ]
 
 [[package]]
@@ -495,6 +553,14 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8a7852d02fc848982e0c167ef163aaff9cd91dc640ba85e263cb1ce46fae51cd"
 
 [[package]]
+name = "seth"
+version = "0.1.0"
+
+[[package]]
+name = "shekhmet"
+version = "0.1.0"
+
+[[package]]
 name = "shlex"
 version = "2.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -594,9 +660,6 @@ dependencies = [
 [[package]]
 name = "wa"
 version = "0.1.0"
-dependencies = [
- "heapless",
-]
 
 [[package]]
 name = "x25519-dalek"
@@ -650,26 +713,6 @@ name = "zerocopy-derive"
 version = "0.8.56"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f2ab42fc20575779bd240faa45f94a74256f755c0fa9e89f0ede20d91d0cdfc1"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn",
-]
-
-[[package]]
-name = "zeroize"
-version = "1.9.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e13c156562582aa81c60cb29407084cdb54c4164760106ab78e6c5b0858cf64e"
-dependencies = [
- "zeroize_derive",
-]
-
-[[package]]
-name = "zeroize_derive"
-version = "1.5.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3c50655cbb0fe3fc43170059e702f1ce5e19b84cec58dc87b037a09935c2f328"
 dependencies = [
  "proc-macro2",
  "quote",

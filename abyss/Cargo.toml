@@ -1,0 +1,8 @@
+[package]
+name = "abyss"
+version = "0.1.0"
+edition = "2024"
+description = "Inverse runtime: dismantles plans to recover hidden dependencies"
+keywords = ["abyss", "runtime", "dependency", "recovery"]
+
+[dependencies]

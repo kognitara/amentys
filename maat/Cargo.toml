@@ -2,6 +2,8 @@
 name = "maat"
 version = "0.1.0"
 edition = "2024"
+description = "The divine init: boot, memory layout, and first law of the machine"
+keywords = ["maat", "boot", "memory", "init"]
 
 [[bin]]
 name = "maat"

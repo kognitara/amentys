@@ -1,0 +1,16 @@
+[package]
+name = "nil"
+version = "0.1.0"
+edition = "2024"
+description = "Filesystem kernel: manages directory structures and low-level data"
+keywords = ["nil", "filesystem", "kernel", "storage"]
+
+[lib]
+bench = false
+doctest = true
+name = "nil"
+path = "src/lib.rs"
+test = true
+
+[dependencies]
+noun = { path = "../noun", version = "0.1.0", default-features = false }

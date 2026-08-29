@@ -1,6 +1,5 @@
 NVME_IMG := nvme-1.img
 NVME_SIZE := 50G
-PACKAGES := $(shell cargo metadata --format-version 1 | jq -r '.workspace_members[]' | sed -E 's|.*/([^ # ]+)#.*|\1|')
 CARGO := cargo
 QEMU := sudo qemu-system-x86_64
 
@@ -84,14 +83,21 @@ CLIPPY_KERNEL_FLAGS := -D warnings \
 .PHONY: help ci clean run bootimage iso run-iso image up documentation doc demo
 
 # Terminal display color codes
-C_RESET := \033[0m
-C_OK := \033[32;1m
-C_KO := \033[31;1m
-C_INFO := \033[1;37;1m
+C_RESET := $$(printf '\033[0m')
+C_GREEN := $$(printf '\033[32m')
+C_MAGENTA := $$(printf '\033[35m')
+C_RED := $$(printf '\033[31m')
+C_CYAN := $$(printf '\033[36m')
+C_BLUE := $$(printf '\033[34m')
+C_YELLOW := $$(printf '\033[33m')
+C_WHITE := $$(printf '\033[37m')
+C_OK := $(C_GREEN)
+C_KO := $(C_RED)
+C_INFO := $(C_CYAN)
 
 help: ## Print this help list with all available commands
 	@$(call center_text,Amentys OS)
-	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "  \033[1;32m%-15s\033[1;37m %s\033[0m\n", $$1, $$2}' $(MAKEFILE_LIST)
+	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "  %-15s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 	@echo ""
 
 demo:
@@ -106,7 +112,7 @@ ci: clean ## Run all tests (cargo test, clippy, fmt, machete) on the packages wi
 	$(call disable_cursor)
 	@timeout --preserve-status $(TIMEOUT) $(MAKE) ci_all || \
 	{ \
-		echo -e "\n\t\t\t$(C_KO)    Tests timed out after $(TIMEOUT) seconds!$(C_RESET)\n"; \
+		echo "\n\t\t\tTests timed out after $(TIMEOUT) seconds!\n"; \
 		exit 1; \
 	}
 	@$(call enable_cursor)
@@ -125,7 +131,6 @@ iso: ci ## Compile the kernel and init, then generate the bootable image (.iso)
 
 clean: ## Clean the project (remove the target folder, logs, and reformat the code)
 	@clear
-	@cargo fmt --all
 	@rm -rf ci/stdout ci/stderr target/ ISO/
 	@rm -f $(IMAGE_PATH) $(ISO_PATH)
 launch:
@@ -242,20 +247,29 @@ endef
 
 # Comprehensive test suite for all workspace packages
 define test_packages
+	@$(call center_text, Amentys Continuous Integration Testing)
 	@$(call disable_config)
 	status=0; \
 	termwidth=$$(tput cols 2>/dev/null || echo 80); \
-	row_width=97; \
-	pad=$$(( (termwidth - row_width) / 2 )); \
+	table_width=120; \
+	pad=$$(( (termwidth - table_width) / 2 )); \
 	pad=$$(($$pad > 0 ? $$pad : 0)); \
 	pad_str=$$(printf '%*s' "$$pad" ""); \
-	printf "\n$$pad_str$(C_INFO)%-15s  %-8s  %-8s  %-8s  %-8s  %-8s  %-8s  %-8s  %s$(C_RESET)\n" "PACKAGE" "START" "END" "TEST" "CHECK" "CLIPPY" "FMT" "MACHETE" "  STATUS  "; \
-	for pkg in $(PACKAGES); do \
+	META=$$(cargo metadata --no-deps --format-version 1); \
+	mapfile -t pkgs < <(echo "$$META" | jq -r '.packages[].name'); \
+	mapfile -t versions < <(echo "$$META" | jq -r '.packages[].version'); \
+	mapfile -t editions < <(echo "$$META" | jq -r '.packages[].edition'); \
+	mapfile -t descs < <(echo "$$META" | jq -r '.packages[].description // "N/A"'); \
+	for i in "$${!pkgs[@]}"; do \
+		failed_steps=(); \
+		pkg="$${pkgs[$$i]}"; \
+		version="$${versions[$$i]}"; \
+		edition="$${editions[$$i]}"; \
+		description="$${descs[$$i]}"; \
 		mkdir -p ci/stdout/$$pkg ci/stderr/$$pkg; \
 		test=0; check=0; clippy=0; fmt=0; machete=0; \
-		s="success"; f="failure"; \
-		bd=$$(date +'%H:%M:%S'); \
-		printf "\r$$pad_str$(C_INFO)%-15s$(C_RESET)  %-8s  %-8s  %-8s  %-8s  %-8s  %-8s  %-8s  %s" "$$pkg" "$$bd" "unknown " "unknown " "unknown " "unknown " "unknown " "unknown " " unknown  "; \
+		start=$$(date +'%H:%M:%S'); \
+		s="ok"; f="ko"; \
 		if [ "$$pkg" = "re" ]; then flags="$(CLIPPY_KERNEL_FLAGS)"; else flags="$(CLIPPY_USER_FLAGS)"; fi; \
 		if [ "$$pkg" != "re" ] && [ "$$pkg" != "maat" ] && [ "$$pkg" != "ji" ] && [ "$$pkg" != "zuu" ] && [ "$$pkg" != "hu" ]; then \
 			$(CARGO) test -p $$pkg --lib --release --jobs $(NUM_JOBS) > ci/stdout/$$pkg/test.log 2> ci/stderr/$$pkg/test.log || test=1; \
@@ -264,31 +278,46 @@ define test_packages
 		$(CARGO) clippy -p $$pkg --release --jobs $(NUM_JOBS) -- $$flags > ci/stdout/$$pkg/clippy.log 2> ci/stderr/$$pkg/clippy.log || clippy=1; \
 		$(CARGO) fmt -p $$pkg -- --check > ci/stdout/$$pkg/fmt.log 2> ci/stderr/$$pkg/fmt.log || fmt=1; \
 		$(CARGO) machete $$pkg > ci/stdout/$$pkg/machete.log 2> ci/stderr/$$pkg/machete.log || machete=1; \
-		if [ "$$test" -eq 0 ] && [ "$$check" -eq 0 ] && [ "$$clippy" -eq 0 ] && [ "$$fmt" -eq 0 ] && [ "$$machete" -eq 0 ]; then \
-			printf "\r$$pad_str$(C_INFO)%-15s$(C_RESET)  %-8s  %-8s  $(C_OK)%-8s$(C_RESET)  $(C_OK)%-8s$(C_RESET)  $(C_OK)%-8s$(C_RESET)  $(C_OK)%-8s$(C_RESET)  $(C_OK)%-8s$(C_RESET)  $(C_OK)%s$(C_RESET)\n" "$$pkg" "$$bd" "$$(date +'%H:%M:%S')" "$$s" "$$s" "$$s" "$$s" "$$s" "    OK    "; \
+		if [ "$$test" -ne 0 ]; then failed_steps+=("test"); fi; \
+		if [ "$$check" -ne 0 ]; then failed_steps+=("check"); fi; \
+		if [ "$$clippy" -ne 0 ]; then failed_steps+=("clippy"); fi; \
+		if [ "$$fmt" -ne 0 ]; then failed_steps+=("fmt"); fi; \
+		if [ "$$machete" -ne 0 ]; then failed_steps+=("machete"); fi; \
+		if [ "$${#failed_steps[@]}" -gt 0 ]; then \
+			old_ifs="$$IFS"; \
+			IFS=", "; \
+			failure_summary="$${failed_steps[*]}"; \
+			IFS="$$old_ifs"; \
 		else \
-			t_c=$$([ "$$test" -eq 0 ] && echo "$(C_OK)" || echo "$(C_KO)"); \
-			c_c=$$([ "$$check" -eq 0 ] && echo "$(C_OK)" || echo "$(C_KO)"); \
-			cl_c=$$([ "$$clippy" -eq 0 ] && echo "$(C_OK)" || echo "$(C_KO)"); \
-			f_c=$$([ "$$fmt" -eq 0 ] && echo "$(C_OK)" || echo "$(C_KO)"); \
-			m_c=$$([ "$$machete" -eq 0 ] && echo "$(C_OK)" || echo "$(C_KO)"); \
-			t_s=$$([ "$$test" -eq 0 ] && echo "$$s" || echo "$$f"); \
-			c_s=$$([ "$$check" -eq 0 ] && echo "$$s" || echo "$$f"); \
-			cl_s=$$([ "$$clippy" -eq 0 ] && echo "$$s" || echo "$$f"); \
-			f_s=$$([ "$$fmt" -eq 0 ] && echo "$$s" || echo "$$f"); \
-			m_s=$$([ "$$machete" -eq 0 ] && echo "$$s" || echo "$$f"); \
-			printf "\r$$pad_str$(C_INFO)%-15s$(C_RESET)  %-8s  %-8s  $${t_c}%-8s$(C_RESET)  $${c_c}%-8s$(C_RESET)  $${cl_c}%-8s$(C_RESET)  $${f_c}%-8s$(C_RESET)  $${m_c}%-8s$(C_RESET)  $(C_KO)%s$(C_RESET)\n" "$$pkg" "$$bd" "$$(date +'%H:%M:%S')" "$$t_s" "$$c_s" "$$cl_s" "$$f_s" "$$m_s" "    KO    "; \
+			failure_summary=""; \
+		fi; \
+		end=$$(date +'%H:%M:%S'); \
+		if [ "$$test" -eq 0 ] && [ "$$check" -eq 0 ] && [ "$$clippy" -eq 0 ] && [ "$$fmt" -eq 0 ] && [ "$$machete" -eq 0 ]; then \
+			status_txt="$$s"; status_col="$(C_GREEN)"; \
+		else \
+			status_txt="$$f ($$failure_summary)"; status_col="$(C_RED)"; \
 			status=1; \
 		fi; \
+		start_col="$(C_BLUE)"; end_col="$(C_BLUE)"; version_col="$(C_CYAN)"; edition_col="$(C_CYAN)"; pkg_col="$(C_WHITE)"; desc_col="$(C_MAGENTA)"; \
+		printf "%s" "$$pad_str";\
+		printf '%s%-73s%s %s%-5s%s %s%-5s%s %s%-5s%s %s%-5s%s %s%10s%s %s%-3s%s\n' \
+			"$${desc_col}" "$$description" "$(C_RESET)" \
+			"$${start_col}" "$$start" "$(C_RESET)" \
+			"$${end_col}" "$$end" "$(C_RESET)" \
+			"$${version_col}" "$$version" "$(C_RESET)" \
+			"$${edition_col}" "$$edition" "$(C_RESET)"  \
+			"$${pkg_col}" "$$pkg" "$(C_RESET)" \
+			"$${status_col}" "$$status_txt" "$(C_RESET)"; \
 	done; \
 	if [ $$status -eq 0 ]; then \
-		printf "\n$$pad_str$(C_OK)%-15s$(C_RESET)\n\n" "All tests passed successfully!"; \
+		printf "\n%s" "$$pad_str$(C_WHITE)"; \
+		printf '%s\n\n' "All tests passed successfully!$(C_RESET)"; \
 	else \
-		printf "\n$$pad_str$(C_KO)%-15s$(C_RESET)\n\n" "Some tests failed! Check the logs in ci/stdout and ci/stderr."; \
+		printf "%s" "$$pad_str$(C_KO)"; \
+		printf '%s\n\n' "Some tests failed! Check the logs in ci/stdout and ci/stderr.$(C_RESET)"; \
 	fi; \
 	exit $$status
 endef
-
 # Cargo configuration management to isolate the environment
 define disable_config
 	mv .cargo/config.toml .cargo/config.toml.tmp 2>/dev/null || true;

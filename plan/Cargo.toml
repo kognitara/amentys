@@ -2,6 +2,8 @@
 name = "plan"
 version = "0.1.0"
 edition = "2024"
+description = "Process manifest: defines layers and capabilities for sandboxed runs"
+keywords = ["plan", "manifest", "sandbox", "capability"]
 
 [lib]
 bench = false

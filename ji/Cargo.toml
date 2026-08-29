@@ -2,5 +2,6 @@
 name = "ji"
 version = "0.1.0"
 edition = "2024"
-
+description = "Integrity sentinel: state recovery, repair, and kernel protection"
+keywords = ["ji", "integrity", "repair", "recovery"]
 [dependencies]

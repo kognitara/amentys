@@ -2,6 +2,8 @@
 name = "kpack"
 version = "0.1.0"
 edition = "2024"
+description = "Delta-compression engine for immutable patching and image assembly"
+keywords = ["kpack", "compression", "patch", "immutable"]
 
 [lib]
 bench = false

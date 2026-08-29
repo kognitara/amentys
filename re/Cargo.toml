@@ -2,6 +2,8 @@
 edition = "2024"
 name = "re"
 version = "0.1.0"
+description = "Supervisor kernel: low-level CPU control, interrupts, and memory"
+keywords = ["re", "kernel", "supervisor", "memory"]
 
 [[bin]]
 bench = false

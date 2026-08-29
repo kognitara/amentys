@@ -2,6 +2,8 @@
 edition = "2024"
 name = "ra"
 version = "0.1.0"
+description = "Application kernel: launches and supervises user-facing workloads"
+keywords = ["ra", "kernel", "application", "workloads"]
 
 [lib]
 bench = false
