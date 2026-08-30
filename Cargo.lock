@@ -4,7 +4,7 @@ version = 4
 
 [[package]]
 name = "abyss"
-version = "0.1.0"
+version = "0.0.0"
 
 [[package]]
 name = "allocator-api2"
@@ -14,11 +14,11 @@ checksum = "683d7910e743518b0e34f1186f92494becacb047c7b6bf616c96772180fef923"
 
 [[package]]
 name = "ammit"
-version = "0.1.0"
+version = "0.0.0"
 
 [[package]]
 name = "anubis"
-version = "0.1.0"
+version = "0.0.0"
 
 [[package]]
 name = "arrayvec"
@@ -28,7 +28,7 @@ checksum = "d3fb67a6e08acf24fdeccbac2cb6ac4305825bd1f117462e0e6f2f193345ad56"
 
 [[package]]
 name = "awq"
-version = "0.1.0"
+version = "0.0.0"
 dependencies = [
  "heapless",
  "noun",
@@ -150,7 +150,7 @@ dependencies = [
 
 [[package]]
 name = "cubefs"
-version = "0.1.0"
+version = "0.0.0"
 dependencies = [
  "x86_64",
 ]
@@ -188,7 +188,7 @@ dependencies = [
 
 [[package]]
 name = "douat"
-version = "0.1.0"
+version = "0.0.0"
 
 [[package]]
 name = "equivalent"
@@ -216,7 +216,7 @@ checksum = "77ce24cb58228fbb8aa041425bb1050850ac19177686ea6e0f41a70416f56fdb"
 
 [[package]]
 name = "hamon"
-version = "0.1.0"
+version = "0.0.0"
 dependencies = [
  "x86_64",
 ]
@@ -253,14 +253,14 @@ dependencies = [
 
 [[package]]
 name = "horus"
-version = "0.1.0"
+version = "0.0.0"
 dependencies = [
  "x86_64",
 ]
 
 [[package]]
 name = "hu"
-version = "0.1.0"
+version = "0.0.0"
 dependencies = [
  "x86_64",
 ]
@@ -285,11 +285,11 @@ dependencies = [
 
 [[package]]
 name = "ji"
-version = "0.1.0"
+version = "0.0.0"
 
 [[package]]
 name = "jinshu"
-version = "0.1.0"
+version = "0.0.0"
 dependencies = [
  "blake3",
  "heapless",
@@ -299,7 +299,7 @@ dependencies = [
 
 [[package]]
 name = "kpack"
-version = "0.1.0"
+version = "0.0.0"
 
 [[package]]
 name = "lazy_static"
@@ -321,9 +321,6 @@ name = "limine"
 version = "0.6.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "29363c0f37e66e18575fadf7141c56ee7ea04ae5fecbeb25eff303f77af203a9"
-dependencies = [
- "uuid",
-]
 
 [[package]]
 name = "linked_list_allocator"
@@ -360,7 +357,7 @@ dependencies = [
 
 [[package]]
 name = "maat"
-version = "0.1.0"
+version = "0.0.0"
 dependencies = [
  "jinshu",
  "limine",
@@ -380,7 +377,7 @@ checksum = "cf8baf1c55e62ffcace7a9f06f4bd9cd3f0c4beb022d3b367256b91b87513d98"
 
 [[package]]
 name = "nil"
-version = "0.1.0"
+version = "0.0.0"
 dependencies = [
  "noun",
 ]
@@ -393,11 +390,11 @@ checksum = "f102c477fd4ec864c149803bf606ecc23bc9329602ec0f99073a728abf454abc"
 
 [[package]]
 name = "noun"
-version = "0.1.0"
+version = "0.0.0"
 
 [[package]]
 name = "ocean"
-version = "0.1.0"
+version = "0.0.0"
 dependencies = [
  "heapless",
  "noun",
@@ -420,7 +417,7 @@ dependencies = [
 
 [[package]]
 name = "osiris"
-version = "0.1.0"
+version = "0.0.0"
 dependencies = [
  "x86_64",
 ]
@@ -433,7 +430,7 @@ checksum = "73c53b65bbadd653c9d125e745d2659a3a060539b17d96ab1c59f9f5bfdacce5"
 
 [[package]]
 name = "plan"
-version = "0.1.0"
+version = "0.0.0"
 dependencies = [
  "heapless",
  "noun",
@@ -450,7 +447,7 @@ dependencies = [
 
 [[package]]
 name = "prism"
-version = "0.1.0"
+version = "0.0.0"
 dependencies = [
  "awq",
  "jinshu",
@@ -469,7 +466,7 @@ dependencies = [
 
 [[package]]
 name = "pulse"
-version = "0.1.0"
+version = "0.0.0"
 dependencies = [
  "rand_chacha",
  "rand_core",
@@ -488,7 +485,7 @@ dependencies = [
 
 [[package]]
 name = "ra"
-version = "0.1.0"
+version = "0.0.0"
 dependencies = [
  "heapless",
  "jinshu",
@@ -514,7 +511,7 @@ checksum = "63b8176103e19a2643978565ca18b50549f6101881c443590420e4dc998a3c69"
 
 [[package]]
 name = "re"
-version = "0.1.0"
+version = "0.0.0"
 dependencies = [
  "lazy_static",
  "limine",
@@ -554,11 +551,11 @@ checksum = "8a7852d02fc848982e0c167ef163aaff9cd91dc640ba85e263cb1ce46fae51cd"
 
 [[package]]
 name = "seth"
-version = "0.1.0"
+version = "0.0.0"
 
 [[package]]
 name = "shekhmet"
-version = "0.1.0"
+version = "0.0.0"
 
 [[package]]
 name = "shlex"
@@ -612,7 +609,7 @@ dependencies = [
 
 [[package]]
 name = "thot"
-version = "0.1.0"
+version = "0.0.0"
 
 [[package]]
 name = "typenum"
@@ -631,12 +628,6 @@ name = "unicode-width"
 version = "0.2.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b4ac048d71ede7ee76d585517add45da530660ef4390e49b098733c6e897f254"
-
-[[package]]
-name = "uuid"
-version = "1.24.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2cefc03fd367c0c6d4305de1b312cf00248c4114f4a0418ce6a6af769e3b0bd9"
 
 [[package]]
 name = "volatile"
@@ -659,7 +650,7 @@ dependencies = [
 
 [[package]]
 name = "wa"
-version = "0.1.0"
+version = "0.0.0"
 
 [[package]]
 name = "x25519-dalek"
@@ -721,7 +712,7 @@ dependencies = [
 
 [[package]]
 name = "zuu"
-version = "0.1.0"
+version = "0.0.0"
 dependencies = [
  "chacha20",
  "rand_chacha",

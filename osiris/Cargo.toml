@@ -1,13 +1,11 @@
 [package]
 name = "osiris"
-version = "0.1.0"
-edition = "2024"
 description = "Guardian of transitions: process resurrection and state recovery"
-license = "LicenseRef-ASAL"
-license-file = "../LICENSE"
 keywords = ["osiris", "resurrection", "transition", "recovery"]
+license-file.workspace = true
+edition.workspace = true
+publish.workspace = true
+version.workspace = true
 
 [dependencies]
-x86_64 = { version = "0.15.5", default-features = false, features = [
-    "instructions",
-] }
+x86_64 = { workspace = true }

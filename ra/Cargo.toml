@@ -1,11 +1,11 @@
 [package]
-edition = "2024"
 name = "ra"
-version = "0.1.0"
 description = "Application kernel: launches and supervises user-facing workloads"
-license = "LicenseRef-ASAL"
-license-file = "../LICENSE"
 keywords = ["ra", "kernel", "application", "workloads"]
+license-file.workspace = true
+edition.workspace = true
+publish.workspace = true
+version.workspace = true
 
 [lib]
 bench = false
@@ -15,14 +15,7 @@ path = "src/lib.rs"
 test = true
 
 [dependencies]
-jinshu = { path = "../jinshu", version = "0.1.0", default-features = false, features = [
-] }
-spin = { version = "0.12.3", default-features = false, features = [
-    "mutex",
-    "spin_mutex",
-] }
-heapless = { version = "0.9.3", default-features = false, features = [] }
-x86_64 = { version = "0.15.5", default-features = false, features = [
-    "instructions",
-    "abi_x86_interrupt",
-] }
+jinshu = { workspace = true }
+spin = { workspace = true }
+heapless = { workspace = true }
+x86_64 = { workspace = true }

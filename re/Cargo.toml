@@ -1,40 +1,21 @@
 [package]
-edition = "2024"
 name = "re"
-version = "0.1.0"
 description = "Supervisor kernel: low-level CPU control, interrupts, and memory"
-license = "LicenseRef-ASAL"
-license-file = "../LICENSE"
 keywords = ["re", "kernel", "supervisor", "memory"]
-
-[[bin]]
-bench = false
-doctest = false
-name = "re"
-path = "src/main.rs"
-test = false
-
+license-file.workspace = true
+edition.workspace = true
+publish.workspace = true
+version.workspace = true
 [features]
 default = ["fr"]
 fr = []
 us = []
 
 [dependencies]
-lazy_static = { version = "1.4", default-features = false, features = [
-    "spin_no_std",
-] }
-spin = { version = "0.12.2", default-features = false, features = [
-    "mutex",
-    "spin_mutex",
-] }
-x86_64 = { version = "0.15.5", default-features = false, features = [
-    "instructions",
-    "abi_x86_interrupt",
-] }
-limine = { version = "0.6.5", default-features = false, features = [
-    "ipaddr",
-    "uuid",
-] }
-xmas-elf = "0.10.0"
-os-terminal = { version = "0.7.4", default-features = false, features = ["bitmap"] }
-linked_list_allocator = "0.10.5"
+lazy_static = { workspace = true }
+spin = { workspace = true }
+x86_64 = { workspace = true }
+limine = { workspace = true }
+xmas-elf = { workspace = true }
+os-terminal = { workspace = true }
+linked_list_allocator = { workspace = true }

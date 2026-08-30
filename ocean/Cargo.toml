@@ -1,11 +1,11 @@
 [package]
 name = "ocean"
-version = "0.1.0"
-edition = "2024"
 description = "In-memory storage lattice: hosts the living data ocean beneath RE"
-license = "LicenseRef-ASAL"
-license-file = "../LICENSE"
 keywords = ["ocean", "storage", "memory", "graph"]
+license-file.workspace = true
+edition.workspace = true
+publish.workspace = true
+version.workspace = true
 
 [lib]
 bench = false
@@ -15,5 +15,5 @@ path = "src/lib.rs"
 test = true
 
 [dependencies]
-heapless = { version = "0.9.3", default-features = false }
-noun = { path = "../noun", version = "0.1.0", default-features = false }
+heapless = { workspace = true }
+noun = { workspace = true }

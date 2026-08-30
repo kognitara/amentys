@@ -1,10 +1,10 @@
 [package]
 name = "ammit"
-version = "0.1.0"
-edition = "2024"
 description = "Kill-switch layer: enforces fatal cutoffs and emergency shutdowns"
-license = "LicenseRef-ASAL"
-license-file = "../LICENSE"
+license-file.workspace = true
+edition.workspace = true
+publish.workspace = true
+version.workspace = true
 keywords = ["ammit", "kill-switch", "shutdown", "security"]
 
 [lib]

@@ -1,11 +1,11 @@
 [package]
 name = "anubis"
-version = "0.1.0"
-edition = "2024"
 description = "Boundary hypervisor: monitors system edges and enforces confinement"
-license = "LicenseRef-ASAL"
-license-file = "../LICENSE"
 keywords = ["anubis", "boundary", "confinement", "hypervisor"]
+license-file.workspace = true
+edition.workspace = true
+publish.workspace = true
+version.workspace = true
 
 [lib]
 bench = false

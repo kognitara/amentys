@@ -1,10 +1,10 @@
 [package]
 name = "abyss"
-version = "0.1.0"
-edition = "2024"
 description = "Inverse runtime: dismantles plans to recover hidden dependencies"
-license = "LicenseRef-ASAL"
-license-file = "../LICENSE"
 keywords = ["abyss", "runtime", "dependency", "recovery"]
+license-file.workspace = true
+edition.workspace = true
+publish.workspace = true
+version.workspace = true
 
 [dependencies]

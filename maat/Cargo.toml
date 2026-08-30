@@ -1,11 +1,11 @@
 [package]
 name = "maat"
-version = "0.1.0"
-edition = "2024"
 description = "The divine init: boot, memory layout, and first law of the machine"
-license = "LicenseRef-ASAL"
-license-file = "../LICENSE"
 keywords = ["maat", "boot", "memory", "init"]
+license-file.workspace = true
+edition.workspace = true
+publish.workspace = true
+version.workspace = true
 
 [[bin]]
 name = "maat"
@@ -15,15 +15,11 @@ doctest = false
 bench = false
 
 [dependencies]
-plan = { path = "../plan", version = "0.1.0", default-features = false }
-jinshu = { path = "../jinshu", version = "0.1.0", default-features = false }
-noun = { path = "../noun", version = "0.1.0", default-features = false }
-prism = { path = "../prism", version = "0.1.0", default-features = false }
-ra = { path = "../ra", version = "0.1.0", default-features = false }
-x86_64 = { version = "0.15.5", default-features = false, features = [
-    "instructions",
-] }
-limine = { version = "0.6.5", default-features = false, features = [] }
-linked_list_allocator = { version = "0.10.5", default-features = false, features = [
-    "use_spin",
-] }
+plan = { workspace = true }
+jinshu = { workspace = true }
+noun = { workspace = true }
+prism = { workspace = true }
+ra = { workspace = true }
+x86_64 = { workspace = true }
+limine = { workspace = true }
+linked_list_allocator = { workspace = true }

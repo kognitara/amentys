@@ -1,11 +1,10 @@
 [package]
-edition = "2024"
 name = "prism"
 description = "Execution runtime: interprets plans and materializes the sandbox"
-license = "LicenseRef-ASAL"
-license-file = "../LICENSE"
-keywords = ["prism", "runtime", "sandbox", "execution"]
-version = "0.1.0"
+license-file.workspace = true
+edition.workspace = true
+publish.workspace = true
+version.workspace = true
 
 [lib]
 bench = false
@@ -15,11 +14,7 @@ path = "src/lib.rs"
 test = true
 
 [dependencies]
-plan = { path = "../plan", version = "0.1.0", default-features = false, features = [
-] }
-jinshu = { path = "../jinshu", version = "0.1.0", default-features = false, features = [
-] }
-ra = { path = "../ra", version = "0.1.0", default-features = false, features = [
-] }
-awq = { path = "../awq", version = "0.1.0", default-features = false, features = [
-] }
+plan = { workspace = true }
+jinshu = { workspace = true }
+ra = { workspace = true }
+awq = { workspace = true }
