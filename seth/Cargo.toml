@@ -3,6 +3,8 @@ name = "seth"
 version = "0.1.0"
 edition = "2024"
 description = "Memory incinerator: destroys stale state and wipes sensitive traces"
+license = "LicenseRef-ASAL"
+license-file = "../LICENSE"
 keywords = ["seth", "memory", "wipe", "security"]
 
 [lib]

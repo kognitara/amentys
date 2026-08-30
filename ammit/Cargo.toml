@@ -3,6 +3,8 @@ name = "ammit"
 version = "0.1.0"
 edition = "2024"
 description = "Kill-switch layer: enforces fatal cutoffs and emergency shutdowns"
+license = "LicenseRef-ASAL"
+license-file = "../LICENSE"
 keywords = ["ammit", "kill-switch", "shutdown", "security"]
 
 [lib]

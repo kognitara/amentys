@@ -13,10 +13,12 @@ Before submitting any code, documentation, or design, please be aware that Ament
 
 By submitting a Pull Request (PR) or a patch, you explicitly agree to the following terms (as detailed in Article 5 and Article 9 of the ASAL):
 
-Assignment of Rights:
+Contribution License:
   
-You grant the Original Author (Willy Micieli / Saigo Ekitae) an irrevocable, worldwide, perpetual, and royalty-free license to use,
-modify, integrate, distribute, and commercialize your contribution.
+If your contribution is accepted into the Project, you grant the Original Author identified
+in the LICENSE a worldwide, perpetual, irrevocable, transferable, and royalty-free license to
+use, modify, reproduce, integrate, distribute, sublicense, and commercialize that contribution
+in connection with Amentys. This is a license grant, not a transfer of ownership.
 
 Developer Certificate of Origin (DCO):
 

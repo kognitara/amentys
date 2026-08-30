@@ -1,0 +1,21 @@
+Amentys
+=======
+
+Copyright (c) 2026 Willy Micieli. All rights reserved.
+
+Amentys is distributed under the Amentys Source-Available License (ASAL), Version 1.0.
+See LICENSE for the complete terms.
+
+Third-party components
+----------------------
+
+Amentys may include or depend on third-party components. Those components remain governed
+by their own licenses. Their copyright notices and license texts must be preserved where
+required by those licenses. The dependency metadata and cargo-deny configuration are the
+authoritative starting points for identifying Rust dependencies.
+
+Project names and logos
+-----------------------
+
+Amentys and the names of its subsystems may be protected names or marks. Use of those names
+is governed by TRADEMARKS.md and is not granted by the ASAL.

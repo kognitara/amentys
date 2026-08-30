@@ -3,6 +3,8 @@ name = "noun"
 version = "0.1.0"
 edition = "2024"
 description = "Content-addressable 32-byte identifiers for immutable Merkle proofs"
+license = "LicenseRef-ASAL"
+license-file = "../LICENSE"
 keywords = ["noun", "identifier", "merkle", "proof"]
 
 [dependencies]

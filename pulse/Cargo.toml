@@ -3,6 +3,8 @@ name = "pulse"
 version = "0.1.0"
 edition = "2024"
 description = "Hardware entropy engine and cryptographic heartbeat for key rotation"
+license = "LicenseRef-ASAL"
+license-file = "../LICENSE"
 keywords = ["pulse", "cryptography", "entropy", "security"]
 
 [dependencies]

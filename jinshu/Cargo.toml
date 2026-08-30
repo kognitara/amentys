@@ -1,5 +1,7 @@
 [package]
 description = "Merkle-backed storage engine and Noun graph database on NVMe"
+license = "LicenseRef-ASAL"
+license-file = "../LICENSE"
 keywords = ["jinshu", "storage", "merkle", "database"]
 edition = "2024"
 name = "jinshu"

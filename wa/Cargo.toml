@@ -3,6 +3,8 @@ name = "wa"
 version = "0.1.0"
 edition = "2024"
 description = "Core utility layer: shared helpers, runtime primitives, and OS glue"
+license = "LicenseRef-ASAL"
+license-file = "../LICENSE"
 keywords = ["wa", "utility", "runtime", "helpers"]
 
 [dependencies]

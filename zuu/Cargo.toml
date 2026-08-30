@@ -3,6 +3,8 @@ name = "zuu"
 version = "0.1.0"
 edition = "2024"
 description = "Steganographic network layer: signal distortion and covert pressure"
+license = "LicenseRef-ASAL"
+license-file = "../LICENSE"
 keywords = ["zuu", "network", "steganography", "pressure"]
 
 [dependencies]

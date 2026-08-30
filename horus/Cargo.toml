@@ -3,6 +3,8 @@ name = "horus"
 version = "0.1.0"
 edition = "2024"
 description = "Guardian of execution: oversees plan visibility and runtime defense"
+license = "LicenseRef-ASAL"
+license-file = "../LICENSE"
 keywords = ["horus", "execution", "guardian", "runtime"]
 
 [dependencies]

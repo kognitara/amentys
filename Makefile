@@ -1,4 +1,5 @@
 SHELL := /bin/bash
+export PATH := $(HOME)/.cargo/bin:$(PATH)
 
 NVME_IMG := nvme-1.img
 NVME_SIZE := 50G
@@ -11,6 +12,8 @@ IMAGE_PATH := target/amentys-uefi.img
 ISO_PATH := target/amentys.iso
 TIMEOUT := 300
 SUB_PROC := 2
+VERSION := 0.1.0
+EDITION := "2024"
 
 ifeq ($(SUB_PROC), 0)
   SUB_PROC := 2
@@ -104,20 +107,9 @@ help: ## Print this help list with all available commands
 
 demo:
 	@python3 -m http.server -d demo/
-ci_all:
-	@$(call test_packages)
-# Nouvelle target avec timeout de 30 secondes
-ci: clean ## Run all tests (cargo test, clippy, fmt, machete) on the packages with 30s timeout
-	@$(call clean_logs)
+ci: clean ## Run all tests (cargo test, clippy, fmt, machete) on the packages
 	@$(call disable_config)
-	@Termwidth=$$(tput cols 2>/dev/null || echo 80); \
-	$(call disable_cursor)
-	@timeout --preserve-status $(TIMEOUT) $(MAKE) ci_all || \
-	{ \
-		echo "\n\t\t\tTests timed out after $(TIMEOUT) seconds!\n"; \
-		exit 1; \
-	}
-	@$(call enable_cursor)
+	@$(call test_packages)
 	@$(call enable_config)
 hub: ## Start a local Mercurial server to serve the repository
 	@hg serve
@@ -258,10 +250,55 @@ define test_packages
 	pad=$$(($$pad > 0 ? $$pad : 0)); \
 	pad_str=$$(printf '%*s' "$$pad" ""); \
 	META=$$(cargo metadata --no-deps --format-version 1); \
+	WORKSPACE_VERSION=$$(echo "$$META" | jq -r '.packages[0].version // "n/a"'); \
+	WORKSPACE_EDITION=$$(echo "$$META" | jq -r '.packages[0].edition // "n/a"'); \
 	mapfile -t pkgs < <(echo "$$META" | jq -r '.packages[].name'); \
 	mapfile -t versions < <(echo "$$META" | jq -r '.packages[].version'); \
 	mapfile -t editions < <(echo "$$META" | jq -r '.packages[].edition'); \
 	mapfile -t descs < <(echo "$$META" | jq -r '.packages[].description // "N/A"'); \
+	mkdir -p ci/stdout/amentys ci/stderr/amentys; \
+	audit=0; deny=0; fail_steps=(); s="ok"; f="ko"; global_start=$$(date +'%H:%M:%S'); \
+	if cargo audit --version >/dev/null 2>&1; then \
+		$(CARGO) audit > ci/stdout/amentys/audit.log 2> ci/stderr/amentys/audit.log || audit=1; \
+	else \
+		echo "cargo audit not installed; failing CI" > ci/stdout/amentys/audit.log; \
+		echo "cargo audit not installed; failing CI" > ci/stderr/amentys/audit.log; \
+		audit=1; \
+	fi; \
+	if cargo deny --version >/dev/null 2>&1; then \
+		$(CARGO) deny check > ci/stdout/amentys/deny.log 2> ci/stderr/amentys/deny.log || deny=1; \
+	else \
+		echo "cargo deny not installed; failing CI" > ci/stdout/amentys/deny.log; \
+		echo "cargo deny not installed; failing CI" > ci/stderr/amentys/deny.log; \
+		deny=1; \
+	fi; \
+	if [ "$$audit" -ne 0 ]; then fail_steps+=("audit"); fi; \
+	if [ "$$deny" -ne 0 ]; then fail_steps+=("deny"); fi; \
+	if [ "$${#fail_steps[@]}" -gt 0 ]; then \
+			old_ifs="$$IFS"; \
+			IFS=", "; \
+			failure_summary="$${fail_steps[*]}"; \
+			IFS="$$old_ifs"; \
+	else \
+			failure_summary=""; \
+	fi; \
+	if [ "$$audit" -eq 0 ] && [ "$$deny" -eq 0 ]; then \
+		status_txt="$$s"; status_col="$(C_GREEN)"; \
+	else \
+		status_txt="$$f ($$failure_summary)"; status_col="$(C_RED)"; \
+		status=1; \
+	fi; \
+	start_col="$(C_BLUE)"; end_col="$(C_BLUE)"; version_col="$(C_CYAN)"; edition_col="$(C_CYAN)"; pkg_col="$(C_WHITE)"; desc_col="$(C_MAGENTA)"; \
+	global_end=$$(date +'%H:%M:%S'); \
+	printf "%s" "$$pad_str$(C_WHITE)"; \
+	printf '%s%-73s%s %s%-5s%s %s%-5s%s %s%-5s%s %s%-5s%s %s%10s%s %s%-3s%s\n' \
+		"$${desc_col}" "Amentys" "$(C_RESET)" \
+		"$${start_col}" "$$global_start" "$(C_RESET)" \
+		"$${end_col}" "$$global_end" "$(C_RESET)" \
+		"$${version_col}" "$$WORKSPACE_VERSION" "$(C_RESET)" \
+		"$${edition_col}" "$$WORKSPACE_EDITION" "$(C_RESET)" \
+		"$${pkg_col}" "amentys" "$(C_RESET)" \
+		"$${status_col}" "$$status_txt" "$(C_RESET)"; \
 	for i in "$${!pkgs[@]}"; do \
 		failed_steps=(); \
 		pkg="$${pkgs[$$i]}"; \
@@ -300,7 +337,6 @@ define test_packages
 			status_txt="$$f ($$failure_summary)"; status_col="$(C_RED)"; \
 			status=1; \
 		fi; \
-		start_col="$(C_BLUE)"; end_col="$(C_BLUE)"; version_col="$(C_CYAN)"; edition_col="$(C_CYAN)"; pkg_col="$(C_WHITE)"; desc_col="$(C_MAGENTA)"; \
 		printf "%s" "$$pad_str";\
 		printf '%s%-73s%s %s%-5s%s %s%-5s%s %s%-5s%s %s%-5s%s %s%10s%s %s%-3s%s\n' \
 			"$${desc_col}" "$$description" "$(C_RESET)" \

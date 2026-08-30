@@ -1,4 +1,4 @@
-AMENTYS SOURCE-AVAILABLE LICENSE (ASAL)
+AMENTYS SOURCE-AVAILABLE LICENSE (ASAL) VERSION 1.0
 
 Copyright (c) 2026 Willy Micieli. All rights reserved.
 
@@ -8,10 +8,29 @@ Amentys is not a traditional operating system.
 
 It is designed as an inseparable monolith, merging its kernel, storage system, and user interface into a single entity.
 
-To prevent the fragmentation that divides software engineering (the "Linux syndrome"), this license explicitly
+To prevent the fragmentation that divides software engineering (the "Linux syndrome"), this License explicitly
 prohibits the creation of derivative distributions (public "forks").
 
 The goal is to focus the community's entire energy on a single, unified official system.
+
+This is a source-available license. It is not intended to be an open-source license under
+the Open Source Definition because it restricts public distribution, commercial use, and
+the creation of public forks.
+
+DEFINITIONS
+
+"Software" means the Amentys source code, binaries, documentation, configuration, and
+other materials distributed with this License, excluding Third-Party Components.
+"Project" means the official Amentys project and its official repositories and releases.
+"Original Author" means the rights holder identified in the copyright notice above.
+"Third-Party Components" means software, data, fonts, firmware, or other materials
+distributed with or used by the Software that are identified as third-party materials or
+are separately licensed by their respective rights holders.
+"Public Distribution" means making the Software or a derivative available to a person
+outside the same legal entity, including publication, redistribution, hosting, or delivery
+to customers or external contractors.
+"Internal Use" means use solely by the same legal entity and its employees or direct
+contractors for that entity's internal operations, without Public Distribution.
 
 ARTICLE 1: FREE AND UNIVERSAL USE
 
@@ -39,7 +58,12 @@ To ensure the project's unity, the public distribution of modified, stripped-dow
 is strictly prohibited.
 
 You are not authorized to publish a public "fork" of the project (for example, by replacing the official interface with
-another, or by creating a separate distribution under a different name).ARTICLE 4: INTERNAL MODIFICATIONS AND PRIVACY BOUNDARIES
+another, or by creating a separate distribution under a different name).
+
+Nothing in this License restricts rights that cannot legally be restricted under applicable law. Any such mandatory
+rights remain limited to the minimum extent required by law.
+
+ARTICLE 4: INTERNAL MODIFICATIONS AND PRIVACY BOUNDARIES
 Private Use: You are permitted to modify the source code for your strictly private and internal use, provided that
 such modifications are never publicly distributed.
 
@@ -50,14 +74,16 @@ clients is considered public distribution and is strictly prohibited.
 
 Contribution to the Common Good: If you develop a modification, improvement, or feature that you wish to
 make public, it MUST be submitted to the official Amentys repository (via a "Pull Request" or a patch). Any such
-public submission is automatically governed by the assignment of rights detailed in Article 5.
+public submission requires acceptance of the contribution terms in Article 5. Submission does not guarantee
+acceptance or inclusion in the Project.
 
-ARTICLE 5: ASSIGNMENT OF CONTRIBUTION RIGHTS AND WARRANTIES
+ARTICLE 5: CONTRIBUTION RIGHTS AND WARRANTIES
 
 Grant of Rights: By submitting a contribution (including but not limited to code, documentation, graphics, or
-design) to the official repository, the contributor grants the Original Author an irrevocable, worldwide, perpetual,
-non-exclusive, and royalty-free license to use, modify, integrate, distribute, sublicense, and commercialize that
-contribution within the scope of the Amentys project.
+design) to the official repository, and subject to acceptance into the Project, the contributor grants the Original
+Author an irrevocable, worldwide, perpetual, non-exclusive, transferable, and royalty-free license to use, modify,
+reproduce, integrate, distribute, sublicense, and commercialize that contribution within and in connection with
+the Amentys project. This is a license grant and does not transfer ownership of the contribution.
 
 Contributor Warranty: The contributor warrants that they are the sole author of the contribution or possess all
 necessary legal rights and clearances to submit the contribution under these terms, ensuring it does not infringe
@@ -75,16 +101,19 @@ ARTICLE 7: LIMITATION OF LIABILITY
 THE SOFTWARE IS PROVIDED "AS IS," WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
 INCLUDING BUT NOT LIMITED TO WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
 PARTICULAR PURPOSE, AND NON-INFRINGEMENT. IN NO EVENT SHALL THE AUTHOR BE LIABLE
-FOR ANY CLAIMS, DAMAGES, OR OTHER LIABILITIES ARISING FROM THE USE OF THE SOFTWARE.ARTICLE 8: TRADEMARKS AND VISUAL IDENTITY
-This license does not grant any permission to use the trade names, trademarks, service marks, logos, or product
+FOR ANY CLAIMS, DAMAGES, OR OTHER LIABILITIES ARISING FROM THE USE OF THE SOFTWARE.
+
+ARTICLE 8: TRADEMARKS AND VISUAL IDENTITY
+This License does not grant any permission to use the trade names, trademarks, service marks, logos, or product
 names of the Original Author or the Amentys project, except as required for reasonable and customary use in
 describing the origin of the Software.
 
 ARTICLE 9: PATENT LICENSE AND RETALIATION
 
-Patent Grant: By contributing to the project, each contributor grants to the Original Author and to all users of the
+Patent Grant: By contributing to the Project, each contributor grants to the Original Author and to recipients of the
 Software a perpetual, worldwide, non-exclusive, no-charge, royalty-free, irrevocable patent license to make, have
-made, use, offer to sell, sell, import, and otherwise transfer the Software.
+made, use, offer to sell, sell, import, and otherwise transfer the Software, but only for patent claims necessarily
+infringed by that contributor's contribution alone or by its combination with the Software to which it was submitted.
 
 Patent Retaliation: If you or your legal entity initiate patent litigation against the Original Author or any other user
 claiming that the Software (including any contribution integrated into it) constitutes direct or contributory patent
@@ -116,7 +145,9 @@ ARTICLE 13: GOVERNING LAW AND JURISDICTION
 
 This License shall be governed by and construed in accordance with the laws of France, without regard to its
 conflict of law principles. Any legal action, dispute, or proceeding arising under or in connection with this License
-shall be brought exclusively before the competent courts of France.ARTICLE 14: AGE RESTRICTION AND MINOR USAGE LIABILITY
+shall be brought before the competent courts of France, subject to any mandatory jurisdiction rules.
+
+ARTICLE 14: AGE RESTRICTION AND MINOR USAGE LIABILITY
 Adult Use Only: The Software is exclusively intended and designed for use by individuals who have reached the
 legal age of majority in their respective jurisdictions. It is not directed at, nor intended for, minors.
 
@@ -157,12 +188,19 @@ MUST provide their hardware translation layers strictly as transparent, inert, a
 (Refraction Plans), as defined by the Amentys documentation.
 
 Prohibition of Telemetry and Data Exfiltration: Hardware interfaces, drivers, and translation maps submitted by
-manufacturers must contain ZERO executable logic capable of intercepting, storing, or transmitting user data (e.g.,keystrokes, framebuffers, audio streams, memory states). Any inclusion of telemetry, spyware, or undocumented
+manufacturers must contain ZERO executable logic capable of intercepting, storing, or transmitting user data (e.g.,
+keystrokes, framebuffers, audio streams, memory states). Any inclusion of telemetry, spyware, or undocumented
 data exfiltration mechanisms constitutes a severe breach of this License.
 
 European Sovereignty and Strict Liability: If a hardware partner or manufacturer intentionally or negligently
 introduces malicious logic or hidden surveillance capabilities into their Amentys-compatible interface, they will be
 held strictly liable under European cybersecurity and data protection laws. The Original Author and the governing
 legal entity (SASU) reserve the right to immediately revoke the manufacturer's certification, block their hardware
-components across the Amentys ecosystem via semantic blacklisting, and seek unlimited financial damages for
-breach of trust and ecosystem endangerment.
+components across the Amentys ecosystem via semantic blacklisting, and seek all remedies available under applicable
+law for breach of this License.
+
+ARTICLE 17: RESERVATION OF RIGHTS AND LICENSE VERSION
+
+All rights not expressly granted by this License are reserved by the Original Author. The version of this License
+identified at the beginning of this file applies to the corresponding release of the Software. A later version may be
+offered for future releases, but it does not retroactively change the terms applicable to an earlier release.

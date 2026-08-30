@@ -1,5 +1,7 @@
 # Amentys
 
+[![Amentys](https://github.com/kognitara/amentys/actions/workflows/amentys.yml/badge.svg)](https://github.com/kognitara/amentys/actions/workflows/amentys.yml)
+
 Amentys is a layered operating and runtime architecture built around a small, explicit trust model.
 The system is organized around a supervisor, application kernels, filesystem and storage layers, and protection/security primitives.
 
@@ -88,3 +90,9 @@ make doc
 ```
 
 - [Filesystem](FILESYSTEM.md)
+- [License](LICENSE)
+- [Third-party notices](NOTICE)
+- [Security policy](SECURITY.md)
+- [Privacy and telemetry](PRIVACY.md)
+- [Trademarks and branding](TRADEMARKS.md)
+- [Contribution rules](CONTRIBUTING.md)

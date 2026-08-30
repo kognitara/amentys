@@ -30,7 +30,6 @@ members = [
 ]
 resolver = "3"
 
-
 [profile.dev]
 opt-level = 2
 panic = "abort"

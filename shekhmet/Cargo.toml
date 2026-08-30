@@ -3,6 +3,8 @@ name = "shekhmet"
 version = "0.1.0"
 edition = "2024"
 description = "War guardian: protects crypto keys and hardens defensive postures"
+license = "LicenseRef-ASAL"
+license-file = "../LICENSE"
 keywords = ["shekhmet", "guardian", "crypto", "defense"]
 
 [lib]

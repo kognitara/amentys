@@ -3,6 +3,8 @@ name = "ocean"
 version = "0.1.0"
 edition = "2024"
 description = "In-memory storage lattice: hosts the living data ocean beneath RE"
+license = "LicenseRef-ASAL"
+license-file = "../LICENSE"
 keywords = ["ocean", "storage", "memory", "graph"]
 
 [lib]

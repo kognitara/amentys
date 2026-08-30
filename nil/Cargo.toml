@@ -3,6 +3,8 @@ name = "nil"
 version = "0.1.0"
 edition = "2024"
 description = "Filesystem kernel: manages directory structures and low-level data"
+license = "LicenseRef-ASAL"
+license-file = "../LICENSE"
 keywords = ["nil", "filesystem", "kernel", "storage"]
 
 [lib]

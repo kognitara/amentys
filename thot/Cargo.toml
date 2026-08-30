@@ -3,6 +3,8 @@ name = "thot"
 version = "0.1.0"
 edition = "2024"
 description = "The royal kernel: global ordering, Merkle truth, and consistency"
+license = "LicenseRef-ASAL"
+license-file = "../LICENSE"
 keywords = ["thot", "order", "merkle", "consistency"]
 
 [dependencies]

@@ -3,6 +3,8 @@ name = "cubefs"
 version = "0.1.0"
 edition = "2024"
 description = "Deterministic COW filesystem using content-addressed Kpack recipes"
+license = "LicenseRef-ASAL"
+license-file = "../LICENSE"
 keywords = ["cubefs", "cow", "filesystem", "storage"]
 
 [dependencies]
