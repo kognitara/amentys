@@ -25,5 +25,7 @@ jobs:
       - name: Install cargo tools
         run: |
           cargo install cargo-machete cargo-audit cargo-auditable cargo-deny
+      - name: Install rustup components
+        run: rustup component add rustfmt clippy
       - name: Run CI
         run: make ci
