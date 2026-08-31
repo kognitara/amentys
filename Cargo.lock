@@ -17,6 +17,13 @@ name = "ammit"
 version = "0.0.0"
 
 [[package]]
+name = "amon"
+version = "0.0.0"
+dependencies = [
+ "x86_64",
+]
+
+[[package]]
 name = "anubis"
 version = "0.0.0"
 
@@ -284,6 +291,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "isis"
+version = "0.0.0"
+dependencies = [
+ "x86_64",
+]
+
+[[package]]
 name = "ji"
 version = "0.0.0"
 
@@ -295,6 +309,13 @@ dependencies = [
  "heapless",
  "kpack",
  "noun",
+]
+
+[[package]]
+name = "kherpi"
+version = "0.0.0"
+dependencies = [
+ "x86_64",
 ]
 
 [[package]]
