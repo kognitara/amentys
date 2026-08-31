@@ -1,5 +1,7 @@
 # Contributing to Amentys
 
+[Matrix chat](https://matrix.to/#/#amentys:matrix.org)
+
 Thank you for your interest in Amentys!
 
 Because Amentys is designed as an inseparable monolith (kernel, storage, and user interface merged into a single entity),

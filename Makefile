@@ -12,8 +12,6 @@ IMAGE_PATH := target/amentys-uefi.img
 ISO_PATH := target/amentys.iso
 TIMEOUT := 300
 SUB_PROC := 2
-VERSION := 0.1.0
-EDITION := "2024"
 
 ifeq ($(SUB_PROC), 0)
   SUB_PROC := 2
@@ -126,7 +124,7 @@ iso: ci ## Compile the kernel and init, then generate the bootable image (.iso)
 clean: ## Clean the project (remove the target folder, logs, and reformat the code)
 	@clear
 	@rm -rf ci/stdout ci/stderr target/ ISO/
-	@rm -f $(IMAGE_PATH) $(ISO_PATH)
+	@rm -f $(IMAGE_PATH) $(ISO_PATH) nvme-1.img qemu.log
 launch:
 	@$(call make_image)
 	@$(call run)
@@ -183,7 +181,7 @@ define make_image
 	@if [ ! -f target/BOOTX64.EFI ]; then cp BOOTX64.EFI target/BOOTX64.EFI; fi
 	@mcopy -i $(IMAGE_PATH) target/BOOTX64.EFI ::/EFI/BOOT/BOOTX64.EFI
 	@mcopy -i $(IMAGE_PATH) limine.conf ::/limine.conf
-	@if [ -f "wallpaper.jpg" ]; then mcopy -i $(IMAGE_PATH) wallpaper.jpg ::/wallpaper.jpg; fi
+	@if [ -f "assets/wallpaper.jpg" ]; then mcopy -i $(IMAGE_PATH) assets/wallpaper.jpg ::/wallpaper.jpg; fi
 	@mcopy -i $(IMAGE_PATH) target/x86_64-amentys/release/re ::/re
 	@mcopy -i $(IMAGE_PATH) target/x86_64-unknown-none/release/maat ::/maat
 	@$(call center_text, Image $(IMAGE_PATH) ready!)
@@ -201,7 +199,7 @@ define make_iso
 	@if [ -f BOOTX64.EFI ]; then cp BOOTX64.EFI ISO/EFI/BOOT/BOOTX64.EFI; fi
 	@cp limine.conf ISO/limine.conf
 	@cp limine.conf ISO/boot/limine.conf
-	@if [ -f "wallpaper.png" ]; then cp wallpaper.png ISO/wallpaper.png; fi
+	@if [ -f "assets/wallpaper.png" ]; then cp assets/wallpaper.png ISO/wallpaper.png; fi
 	
 	@cp target/x86_64-amentys/release/re ISO/boot/re
 	@cp target/x86_64-unknown-none/release/maat ISO/boot/maat

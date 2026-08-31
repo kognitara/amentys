@@ -7,3 +7,4 @@ ISO
 .crates2.json
 .crates.toml
 nvme-1.img
+qemu.log
