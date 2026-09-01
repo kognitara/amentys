@@ -1,6 +1,4 @@
-SHELL := /usr/local/bin/bash
-export PATH := $(HOME)/.cargo/bin:$(PATH)
-
+SHELL := $(shell which bash)
 NVME_IMG := nvme-1.img
 NVME_SIZE := 50G
 CARGO := cargo
