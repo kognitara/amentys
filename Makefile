@@ -1,4 +1,4 @@
-SHELL := /bin/bash
+SHELL := /usr/local/bin/bash
 export PATH := $(HOME)/.cargo/bin:$(PATH)
 
 NVME_IMG := nvme-1.img
