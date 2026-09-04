@@ -1,32 +1,16 @@
 [workspace]
 members = [
-    "abyss",
-    "ammit",
-    "anubis",
     "awq",
-    "cubefs",
-    "douat",
     "kpack",
-    "hamon",
-    "horus",
-    "hu",
-    "ji",
     "jinshu",
     "maat",
-    "nil",
     "noun",
     "ocean",
-    "osiris",
     "plan",
     "prism",
     "pulse",
     "ra",
     "re",
-    "seth",
-    "shekhmet",
-    "thot",
-    "wa",
-    "zuu", "isis", "amon", "kherpi",
 ]
 resolver = "3"
 [workspace.package]
