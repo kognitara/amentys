@@ -1,18 +1,11 @@
 [package]
 name = "maat"
-description = "The divine init: boot, memory layout, and first law of the machine"
-keywords = ["maat", "boot", "memory", "init"]
+description = "The law of Amentys: weigh the Seal, endow caps, supervise pillars"
+keywords = ["weigh", "law", "supervise", "endow"]
 license-file.workspace = true
 edition.workspace = true
 publish.workspace = true
 version.workspace = true
-
-[[bin]]
-name = "maat"
-path = "src/main.rs"
-test = false
-doctest = false
-bench = false
 
 [dependencies]
 plan = { workspace = true }
