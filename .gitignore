@@ -8,3 +8,4 @@ ISO
 .crates.toml
 nvme-1.img
 qemu.log
+*.core
