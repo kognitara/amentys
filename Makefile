@@ -55,7 +55,6 @@ CLIPPY_USER_FLAGS := -D warnings \
                      -D clippy::ptr_as_ptr \
                      -D clippy::transmute_ptr_to_ptr \
                      -D clippy::inline_always \
-                     -D clippy::panic \
                      -A clippy::unwrap_used \
                      -A clippy::expect_used \
                      -D clippy::cast_possible_truncation \
@@ -78,7 +77,6 @@ CLIPPY_KERNEL_FLAGS := -D warnings \
                        -W clippy::pedantic \
                        -W clippy::nursery \
                        -A clippy::missing_errors_doc \
-                       -A clippy::panic \
                        -A clippy::expect_used
 
 .PHONY: help ci clean run bootimage iso run-iso image up documentation doc demo

@@ -19,3 +19,4 @@ jinshu = { workspace = true }
 spin = { workspace = true }
 heapless = { workspace = true }
 x86_64 = { workspace = true }
+os-terminal = { workspace = true }

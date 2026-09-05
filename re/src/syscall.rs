@@ -1,5 +1,6 @@
-use crate::{TERMINAL, gdt::GDT};
+use crate::gdt::GDT;
 use core::arch::naked_asm;
+use ra::TERMINAL;
 use x86_64::registers::model_specific::{Efer, EferFlags, LStar, SFMask, Star};
 use x86_64::registers::rflags::RFlags;
 /// init the syscall handler by setting up the necessary MSRs and flags.

@@ -5,10 +5,10 @@ use core::panic::PanicInfo;
 use core::ptr;
 use os_terminal::Terminal;
 use os_terminal::font::BitmapFont;
+use ra::println;
 use x86_64::VirtAddr;
 use x86_64::structures::paging::{FrameAllocator, Mapper, Page, PageTableFlags, Size4KiB};
 use xmas_elf::ElfFile;
-
 #[allow(clippy::too_many_lines)]
 #[unsafe(no_mangle)]
 /// Point d'entrée principal du noyau Amentys (`_start`).
@@ -38,14 +38,14 @@ pub extern "C" fn _start(_info: *const ()) -> ! {
         }
 
         // We create the os-terminal compatible drawing target
-        let screen_data = re::ScreenData {
+        let screen_data = ra::ScreenData {
             ptr: framebuffer.address().cast::<u8>(),
             width: framebuffer.width,
             height: framebuffer.height,
             pitch: framebuffer.pitch,
         };
         // We lock and initialize the global kernel terminal
-        *re::TERMINAL.lock() = Some(Terminal::new(
+        *ra::TERMINAL.lock() = Some(Terminal::new(
             screen_data,
             Box::new(BitmapFont), // Notre FontManager alloué dynamiquement !
         ));
@@ -206,11 +206,8 @@ pub extern "C" fn _start(_info: *const ()) -> ! {
 }
 
 #[panic_handler]
-fn panic(_info: &PanicInfo) -> ! {
-    let mut terminal_guard = re::TERMINAL.lock();
-    if let Some(terminal) = terminal_guard.as_mut() {
-        terminal.process(b"\n!!! KERNEL PANIC !!!\n");
-    }
+fn panic(info: &PanicInfo) -> ! {
+    println!("{}", info.message());
     loop {
         x86_64::instructions::hlt();
     }

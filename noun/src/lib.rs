@@ -5,8 +5,6 @@ use core::cmp::{Eq, Ord, PartialEq, PartialOrd};
 use core::derive;
 use core::fmt::Debug;
 
-pub struct NounOcean {}
-
 /// A Noun is a 32-byte identifier used in the Amentys system. It is represented as a fixed-size array of 32 bytes.
 ///
 /// # Fields

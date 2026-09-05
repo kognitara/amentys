@@ -5,7 +5,6 @@ members = [
     "jinshu",
     "maat",
     "noun",
-    "ocean",
     "plan",
     "prism",
     "pulse",
@@ -22,12 +21,10 @@ version = "0.0.0"
 [workspace.dependencies]
 kpack = { path = "kpack" }
 noun = { path = "noun" }
+ra = { path = "ra" }
 plan = { path = "plan" }
-maat = { path = "maat" }
 jinshu = { path = "jinshu" }
 prism = { path = "prism" }
-ji = { path = "ji" }
-ra = { path = "ra" }
 awq = { path = "awq" }
 blake3 = { version = "1.8.6", default-features = false }
 heapless = { version = "0.9.3", default-features = false }

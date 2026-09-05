@@ -1,5 +1,5 @@
 #![cfg_attr(not(test), no_std)]
-
+pub mod law;
 use core::{arch::asm, fmt::Write};
 /// Exits the program with the given exit code using the `exit` syscall.
 /// # Safety

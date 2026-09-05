@@ -1,5 +1,8 @@
 #![cfg_attr(not(test), no_std)]
 
+pub mod ops;
+pub mod sceau;
+
 use heapless::Vec;
 use noun::Noun;
 

@@ -1,19 +1,9 @@
 [package]
 name = "ocean"
-description = "In-memory storage lattice: hosts the living data ocean beneath RE"
-keywords = ["ocean", "storage", "memory", "graph"]
+description = "Process manifest: defines layers and capabilities for sandboxed runs"
+keywords = ["ocean", "manifest", "sandbox", "capability"]
 license-file.workspace = true
-edition.workspace = true
-publish.workspace = true
 version.workspace = true
-
-[lib]
-bench = false
-doctest = true
-name = "ocean"
-path = "src/lib.rs"
-test = true
+edition.workspace = true
 
 [dependencies]
-heapless = { workspace = true }
-noun = { workspace = true }
