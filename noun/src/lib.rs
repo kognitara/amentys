@@ -18,21 +18,29 @@ pub struct Noun {
 }
 
 impl Noun {
-    /// Creates a new [`Noun`].
+    /// Creates a new [`Noun`] from a byte slice. The slice is hashed using the Blake3 hashing algorithm to produce a 32-byte identifier.
     ///
     /// # Arguments
-    /// * `hash` - A 32-byte array representing the hash of the noun.
+    /// * `bytes` - A byte slice that will be hashed to create the noun.
     /// # Returns
-    /// * A new instance of [`Noun`].
+    /// * A new instance of [`Noun`] containing the hash of the input bytes.
     /// # Example
     /// ```no_run
     /// use noun::Noun;
-    /// let hash = [0u8; 32];  
-    /// let noun = Noun::new(hash);
+    /// let data = b"example data";
+    /// let noun = Noun::of(data);
     /// ```
     #[must_use]
-    pub const fn new(hash: [u8; 32]) -> Self {
-        Self { hash }
+    pub fn of(bytes: &[u8]) -> Self {
+        Self {
+            hash: blake3::hash(bytes).into(),
+        }
+    }
+    #[must_use]
+    pub fn keyed(key: &[u8; 32], bytes: &[u8]) -> Self {
+        Self {
+            hash: blake3::keyed_hash(key, bytes).into(),
+        }
     }
     #[must_use]
     pub const fn null() -> Self {
@@ -45,8 +53,8 @@ impl Noun {
     /// # Example
     /// ```no_run
     /// use noun::Noun;
-    /// let null_noun = Noun::new([0u8; 32]);
-    /// let non_null_noun = Noun::new([1u8; 32]);
+    /// let null_noun = Noun::null();
+    /// let non_null_noun = Noun::of(&[1u8; 32]);
     /// assert!(!non_null_noun.is_null());
     /// assert!(null_noun.is_null());
     /// ```
@@ -100,9 +108,8 @@ mod tests {
     use core::assert_eq;
     #[test]
     fn test_noun_creation_and_bytes() {
-        let hash = [1u8; 32];
-        let noun = Noun::new(hash);
-        assert_eq!(noun.as_bytes(), &hash);
+        let hash = "hello world".as_bytes();
+        let noun = Noun::of(&hash);
         assert!(!noun.is_null());
     }
 

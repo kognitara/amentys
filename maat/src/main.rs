@@ -71,8 +71,8 @@ pub extern "C" fn _start() -> ! {
     let buffer_virt = buffer_phys + hhdm_offset;
 
     // Hashs fondamentaux de l'OS (Terminal et Réseau)
-    let tui_layer_noun = Noun::new([0x01; 32]);
-    let network_layer_noun = Noun::new([0x02; 32]);
+    let tui_layer_noun = Noun::of(&[0x01; 32]);
+    let network_layer_noun = Noun::of(&[0x02; 32]);
 
     // Aspiration dans la RAM partagée : Les données arriveront dans la RAM physique
     // via le SSD, mais notre CPU les lira via l'adresse virtuelle !
@@ -100,7 +100,7 @@ pub extern "C" fn _start() -> ! {
     let mut router = SemanticRouter::new(storage_engine, &core_ocean);
 
     // 6. LE PLAN : Forge du Terminal
-    let terminal_root_noun = Noun::new([0xAA; 32]);
+    let terminal_root_noun = Noun::of(&[0xAA; 32]);
     let mut phoenix_layers = Layers::new(terminal_root_noun.clone());
     let terminal_plan = Plan::new(terminal_root_noun, &mut phoenix_layers, 0);
 

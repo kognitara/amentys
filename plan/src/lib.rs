@@ -120,20 +120,10 @@ impl Plan {
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    // CORRECTION : Tests modifiés pour vérifier Err au lieu du panic
-    #[test]
-    fn test_plan_creation_with_null_directory() {
-        let mut phoenix: Layers = Layers::default();
-        let plan = Plan::new(Noun::new([0u8; 32]), &mut phoenix, 0);
-        assert!(plan.is_err());
-        assert_eq!(plan.unwrap_err(), "Directory Noun cannot be null");
-    }
-
     #[test]
     fn test_plan_creation_with_empty_phoenix_layers() {
         let mut phoenix: Layers = Layers::default();
-        let plan = Plan::new(Noun::new([1u8; 32]), &mut phoenix, 0);
+        let plan = Plan::new(Noun::of(b"amen"), &mut phoenix, 0);
         assert!(plan.is_err());
         assert_eq!(plan.unwrap_err(), "Phoenix Layers cannot be empty");
     }

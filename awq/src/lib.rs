@@ -67,7 +67,7 @@ impl AwqState {
     /// An instance of `AwqState` with the initial Main branch set to the provided root Noun.
     /// # Examples
     /// ```no_run
-    /// let root_noun = Noun::new([0x00; 32]);
+    /// let root_noun = Noun::of(&[0x00; 32]);
     /// let state = AwqState::new(&root_noun);
     /// ```
     /// # Panics
@@ -90,7 +90,7 @@ impl AwqState {
     /// ```no_run
     /// use noun::Noun;
     /// use awq::AwqState;
-    /// let root_noun = Noun::new([0x00; 32]);
+    /// let root_noun = Noun::of(&[0x00; 32]);
     /// let state = AwqState::new(&root_noun);
     /// let active_root = state.get_active_root();
     /// ```
@@ -111,7 +111,7 @@ impl AwqState {
     /// ```no_run
     /// use noun::Noun;
     /// use awq::AwqState;
-    /// let root_noun = Noun::new([0x00; 32]);
+    /// let root_noun = Noun::of(&[0x00; 32]);
     /// let mut state = AwqState::new(&root_noun);
     /// assert!(state.spawn_ephemeral(1234567890).is_ok());
     /// ```
@@ -134,7 +134,7 @@ impl AwqState {
     /// # Examples
     /// ```no_run
     /// let mut state = AwqState::new(&root_noun);
-    /// let target_noun = Noun::new([0xFF; 32]);
+    /// let target_noun = Noun::of(&[0xFF; 32]);
     /// let index = state.spawn_deployment(target_noun).expect("Failed to spawn deployment");
     /// ```
     pub fn spawn_deployment(&mut self, target_noun: &Noun) -> Result<usize, &'static str> {
@@ -165,9 +165,9 @@ impl AwqState {
     /// ```no_run
     /// use noun::Noun;
     /// use awq::AwqState;
-    /// let root_noun = Noun::new([0x00; 32]);
+    /// let root_noun = Noun::of(&[0x00; 32]);
     /// let mut state = AwqState::new(&root_noun);
-    /// let target_noun = Noun::new([0xFF; 32]);
+    /// let target_noun = Noun::of(&[0xFF; 32]);
     /// let index = state.spawn_deployment(target_noun).expect("Failed to spawn deployment");
     /// let success = state.finalize_deployment(index);
     /// ```
@@ -190,7 +190,7 @@ impl AwqState {
     /// ```no_run
     /// use noun::Noun;
     /// use awq::AwqState;
-    /// let root_noun = Noun::new([0x00; 32]);
+    /// let root_noun = Noun::of(&[0x00; 32]);
     /// let mut state = AwqState::new(&root_noun);
     /// state.sweep(current_timestamp);
     /// ```
@@ -235,7 +235,7 @@ impl Branch {
     /// ```no_run
     /// use noun::Noun;
     /// use awq::Branch;
-    /// let root_noun = Noun::new([0x00; 32]);
+    /// let root_noun = Noun::of(&[0x00; 32]);
     /// let main_branch = Branch::new_main(&root_noun);
     /// ```
     #[must_use]
@@ -256,7 +256,7 @@ impl Branch {
     /// ```no_run
     /// use noun::Noun;
     /// use awq::Branch;
-    /// let root_noun = Noun::new([0x00; 32]);
+    /// let root_noun = Noun::of(&[0x00; 32]);
     /// let ephemeral_branch = Branch::new_ephemeral(&root_noun, expiration_timestamp);
     /// ```
     #[must_use]
@@ -279,8 +279,8 @@ impl Branch {
     /// ```no_run
     /// use noun::Noun;
     /// use awq::Branch;
-    /// let current_root_noun = Noun::new([0x00; 32]);
-    /// let target_noun = Noun::new([0x00; 32]);
+    /// let current_root_noun = Noun::of(&[0x00; 32]);
+    /// let target_noun = Noun::of(&[0x00; 32]);
     /// let deployment_branch = Branch::new_deployment(&current_root_noun, &target_noun);
     /// ```
     #[must_use]
@@ -302,8 +302,8 @@ impl Branch {
     /// ```no_run
     /// use noun::Noun;
     /// use awq::Branch;
-    /// let current_root_noun = Noun::new([0x00; 32]);
-    /// let target_noun = Noun::new([0xFF; 32]);
+    /// let current_root_noun = Noun::of(&[0x00; 32]);
+    /// let target_noun = Noun::of(&[0xFF; 32]);
     /// let mut deployment_branch = Branch::new_deployment(&current_root_noun, &target_noun);
     /// deployment_branch.root = target_noun;
     /// let success = deployment_branch.promote_deployment();
@@ -341,10 +341,10 @@ mod tests {
     use core::assert_eq;
     #[test]
     fn test_awq_state_deployment_lifecycle() {
-        let initial_noun = Noun::new([0x01; 32]);
+        let initial_noun = Noun::of(&[0x01; 32]);
         let mut state = AwqState::new(&initial_noun);
 
-        let server_target = Noun::new([0xFF; 32]); // La cible du réseau
+        let server_target = Noun::of(&[0xFF; 32]); // La cible du réseau
 
         // 1. On lance le clonage réseau
         let deploy_index = state.spawn_deployment(&server_target).unwrap();
@@ -362,7 +362,7 @@ mod tests {
 
     #[test]
     fn test_phoenix_sweeper() {
-        let initial_noun = Noun::new([0x01; 32]);
+        let initial_noun = Noun::of(&[0x01; 32]);
         let mut state = AwqState::new(&initial_noun);
 
         // On crée une branche qui expire à T=100
@@ -390,8 +390,8 @@ mod tests {
     }
     #[test]
     fn test_deployment_promotion_success() {
-        let server_target = Noun::new([0x42; 32]);
-        let mut deployment = Branch::new_deployment(&Noun::new([0; 32]), &server_target);
+        let server_target = Noun::of(&[0x42; 32]);
+        let mut deployment = Branch::new_deployment(&Noun::of(&[0; 32]), &server_target);
 
         deployment.root = server_target; // Objectif atteint
         assert!(deployment.promote_deployment());
@@ -400,10 +400,10 @@ mod tests {
 
     #[test]
     fn test_deployment_promotion_failure() {
-        let server_target = Noun::new([0x42; 32]);
-        let mut deployment = Branch::new_deployment(&Noun::new([0; 32]), &server_target);
+        let server_target = Noun::of(&[0x42; 32]);
+        let mut deployment = Branch::new_deployment(&Noun::of(&[0; 32]), &server_target);
 
-        deployment.root = Noun::new([0x11; 32]);
+        deployment.root = Noun::of(&[0x11; 32]);
         assert!(!deployment.promote_deployment());
     }
 }

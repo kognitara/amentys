@@ -24,7 +24,7 @@ use noun::Noun;
 /// The `TrieNode` is aligned to 4096 bytes to match the size of a standard `Nvme` sector, ensuring that each node can be read or written in a single operation without crossing sector boundaries. This alignment is crucial for performance and data integrity when interacting with `Nvme` devices.
 #[cfg_attr(not(test), repr(C, align(4096)))]
 #[cfg_attr(test, repr(C))]
-#[derive(Debug, Clone)]
+#[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct TrieNode {
     pub mask: u16,
     pub opcode: u8,
@@ -45,13 +45,13 @@ impl TrieNode {
     /// # Returns
     /// A new instance of `TrieNode` with default values.
     #[must_use]
-    pub const fn new() -> Self {
+    pub fn new() -> Self {
         Self {
             mask: 0,
             opcode: Opcode::Lit as u8,
             flags: 0,
             param: 0,
-            branches: [const { Noun::new([0; 32]) }; 16],
+            branches: core::array::from_fn(|_| Noun::of(&[0u8; 32])),
             payload: [0; 3576],
         }
     }
@@ -198,7 +198,7 @@ mod tests {
         assert_eq!(node.flags, 0);
         assert_eq!(node.param, 0);
         for branch in &node.branches {
-            assert_eq!(branch, &Noun::new([0; 32]));
+            assert_eq!(branch, &Noun::of(&[0; 32]));
         }
         assert_eq!(node.payload, [0; 3576]);
     }

@@ -278,6 +278,9 @@ checksum = "f102c477fd4ec864c149803bf606ecc23bc9329602ec0f99073a728abf454abc"
 [[package]]
 name = "noun"
 version = "0.0.0"
+dependencies = [
+ "blake3",
+]
 
 [[package]]
 name = "ocean"

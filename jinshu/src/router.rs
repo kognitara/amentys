@@ -55,7 +55,7 @@ impl NounIndex {
     /// use jinshu::router::NounIndex;
     /// use jinshu::noun::Noun;
     /// let mut index = NounIndex::new();
-    /// let noun = Noun::new([0u8; 32]);    
+    /// let noun = Noun::of(&[0u8; 32]);    
     /// let lba = 42;
     /// match index.insert(noun.clone(), lba) {
     ///     Ok(()) => println!("Successfully inserted entry"),
@@ -93,7 +93,7 @@ impl NounIndex {
     /// use jinshu::router::NounIndex;
     /// use jinshu::noun::Noun;
     /// let mut index = NounIndex::new();
-    /// let noun = Noun::new([0u8; 32]);
+    /// let noun = Noun::of(&[0u8; 32]);
     /// let lba = 42;
     /// index.insert(noun.clone(), lba).unwrap();
     /// assert_eq!(index.get_lba(&noun), Some(lba));
@@ -244,7 +244,7 @@ impl<'a, T: BlockDevice> SemanticRouter<'a, T> {
     pub fn write_virtual_node(&mut self, node: TrieNode) -> Noun {
         // On calcule l'identité du nœud
         let noun_bytes = node.calculate_noun();
-        let noun = Noun::new(noun_bytes);
+        let noun = Noun::of(&noun_bytes);
 
         // On l'ajoute uniquement en RAM dans le contexte du Prisme
         self.virtual_ocean.insert(noun.clone(), node);
@@ -289,7 +289,7 @@ mod tests {
         let mut core_ocean = BTreeMap::new();
 
         // 1. On injecte un Noun dans le CoreOcean AVANT de créer le routeur
-        let noun_core = Noun::new([0xCC; 32]);
+        let noun_core = Noun::of(&[0xCC; 32]);
         let mut node_core = TrieNode::new();
         node_core.opcode = 0x99;
         core_ocean.insert(noun_core.clone(), node_core);
@@ -299,11 +299,11 @@ mod tests {
         let mut router = SemanticRouter::new(storage, &core_ocean);
 
         // 3. On injecte un index artificiel pour le disque
-        let noun_disk = Noun::new([0xDD; 32]);
+        let noun_disk = Noun::of(&[0xDD; 32]);
         router.disk_index.insert(noun_disk.clone(), 42).unwrap();
 
         // 4. On injecte un Noun dans le VirtualOcean (RAM du Plan)
-        let noun_virt = Noun::new([0xBB; 32]);
+        let noun_virt = Noun::of(&[0xBB; 32]);
         let mut node_virt = TrieNode::new();
         node_virt.opcode = 0x88;
         router.virtual_ocean.insert(noun_virt.clone(), node_virt);

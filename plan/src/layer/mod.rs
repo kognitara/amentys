@@ -284,4 +284,68 @@ impl Layer {
             capabilities,
         }
     }
+    #[must_use]
+    pub const fn get_name(&self) -> &'static str {
+        self.name
+    }
+    #[must_use]
+    pub const fn get_version(&self) -> u32 {
+        self.version
+    }
+    #[must_use]
+    pub const fn get_description(&self) -> &'static str {
+        self.description
+    }
+    #[must_use]
+    pub fn get_root(&self) -> Noun {
+        self.root.clone()
+    }
+    #[must_use]
+    pub const fn get_capabilities(&self) -> &Capabilities {
+        &self.capabilities
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_layer_creation() {
+        let layer = Layer::new(
+            "Test Layer",
+            1,
+            "A test layer",
+            Noun::of(&[0u8; 32]),
+            Capabilities::None,
+        );
+        assert_eq!(layer.get_name(), "Test Layer");
+        assert_eq!(layer.get_version(), 1);
+        assert_eq!(layer.get_description(), "A test layer");
+        assert!(!layer.get_root().is_null());
+        assert_eq!(layer.get_capabilities(), &Capabilities::None);
+    }
+
+    #[test]
+    fn test_layers_add_and_get() {
+        let mut layers = Layers::new(Noun::null());
+        let layer1 = Layer::new(
+            "Layer 1",
+            1,
+            "First layer",
+            Noun::of(&[1u8; 32]),
+            Capabilities::Read,
+        );
+        let layer2 = Layer::new(
+            "Layer 2",
+            2,
+            "Second layer",
+            Noun::of(&[2u8; 32]),
+            Capabilities::Write,
+        );
+        layers.add_layer(layer1.clone()).unwrap();
+        layers.add_layer(layer2.clone()).unwrap();
+        assert_eq!(layers.get(0), &layer1);
+        assert_eq!(layers.get(1), &layer2);
+    }
 }
