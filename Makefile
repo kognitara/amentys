@@ -225,6 +225,7 @@ define make_iso
 	
 	@xorriso -as mkisofs -R -J \
 		-no-emul-boot \
+		-V "AMENTYS" \
 		-boot-load-size 4 \
 		-boot-info-table \
 		--efi-boot limine-uefi-cd.bin \
@@ -303,11 +304,11 @@ define test_packages
 		status_txt="$$f ($$failure_summary)"; status_col="$(C_RED)"; \
 		status=1; \
 	fi; \
-	start_col="$(C_BLUE)"; end_col="$(C_BLUE)"; version_col="$(C_CYAN)"; edition_col="$(C_CYAN)"; pkg_col="$(C_WHITE)"; desc_col="$(C_MAGENTA)"; \
+	counter_col="$(C_GREEN)";start_col="$(C_BLUE)"; end_col="$(C_BLUE)"; version_col="$(C_CYAN)"; edition_col="$(C_CYAN)"; pkg_col="$(C_WHITE)"; desc_col="$(C_WHITE)"; \
 	global_end=$$(date +'%H:%M:%S'); \
 	printf "%s" "$$pad_str$(C_WHITE)"; \
 	printf '%s%-5s%s %s%-73s%s %s%-5s%s %s%-5s%s %s%-5s%s %s%-5s%s %s%10s%s %s%-3s%s\n' \
-		"$${desc_col}" "0/$${#pkgs[@]}" "$(C_RESET)" \
+		"$${counter_col}" "00/$${#pkgs[@]}" "$(C_RESET)" \
 		"$${desc_col}" "Amentys" "$(C_RESET)" \
 		"$${start_col}" "$$global_start" "$(C_RESET)" \
 		"$${end_col}" "$$global_end" "$(C_RESET)" \
@@ -317,8 +318,8 @@ define test_packages
 		"$${status_col}" "$$status_txt" "$(C_RESET)"; \
 	for i in "$${!pkgs[@]}"; do \
 		failed_steps=(); \
+		if [ "$$i" -lt "9" ]; then step="$(C_GREEN)0$$((i + 1))/$${#pkgs[@]}$(C_RESET)"; else step="$(C_GREEN)$$((i + 1))/$${#pkgs[@]}$(C_RESET)"; fi; \
 		pkg="$${pkgs[$$i]}"; \
-		step="$$((i + 1))/$${#pkgs[@]}"; \
 		version="$${versions[$$i]}"; \
 		edition="$${editions[$$i]}"; \
 		description="$${descs[$$i]}"; \
@@ -356,7 +357,7 @@ define test_packages
 		fi; \
 		printf "%s" "$$pad_str";\
 		printf '%s%-5s%s %s%-73s%s %s%-5s%s %s%-5s%s %s%-5s%s %s%-5s%s %s%10s%s %s%-3s%s\n' \
-			"$${desc_col}" "$$step" "$(C_RESET)" \
+			"$${counter_col}" "$$step" "$(C_RESET)" \
 			"$${desc_col}" "$$description" "$(C_RESET)" \
 			"$${start_col}" "$$start" "$(C_RESET)" \
 			"$${end_col}" "$$end" "$(C_RESET)" \
