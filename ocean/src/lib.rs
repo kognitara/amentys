@@ -1,14 +1,8 @@
-//! CoreOcean — working set adressé par Noun.
-//!
-//! Remplace `ocean/src/lib.rs`.
-//! DiskOcean (NVMe / `ra`) vient après : même trait, autre backend.
-//!
-//! `put` / `get` tiennent en RAM no_std. Un reboot QEMU vide CoreOcean ;
-//! c'est voulu. La persistance est DiskOcean.
-
 #![cfg_attr(not(test), no_std)]
-
 use noun::Noun;
+
+#[cfg(test)]
+use zuu::zuu;
 
 pub const SLOT_BYTES: usize = 256;
 pub const MAX_SLOTS: usize = 64;
@@ -19,7 +13,7 @@ struct Slot {
     data: [u8; SLOT_BYTES],
 }
 
-/// Surface de l'océan : working set.
+/// Surface of ocean.
 pub struct CoreOcean {
     slots: heapless::Vec<Slot, MAX_SLOTS>,
 }
@@ -31,14 +25,17 @@ impl CoreOcean {
             slots: heapless::Vec::new(),
         }
     }
-
-    /// Adresse le contenu. Même bytes ⇒ même Noun.
+    /// Addresses the content. Same bytes ⇒ same `Noun`.
+    ///
+    /// # Panics
+    ///
+    /// Panics if the blob exceeds `SLOT_BYTES`.
     pub fn put(&mut self, bytes: &[u8]) -> Result<Noun, &'static str> {
         if bytes.len() > SLOT_BYTES {
             return Err("blob exceeds SLOT_BYTES");
         }
         let noun = Noun::of(bytes);
-        if let Some(existing) = self.find(noun) {
+        if let Some(existing) = self.find(&noun) {
             return Ok(existing);
         }
         let mut data = [0u8; SLOT_BYTES];
@@ -46,38 +43,42 @@ impl CoreOcean {
         self.slots
             .push(Slot {
                 noun: noun.clone(),
-                len: bytes.len() as u16,
+                len: u16::try_from(bytes.len()).expect("blob exceeds SLOT_BYTES"),
                 data,
             })
             .map_err(|_| "CoreOcean full")?;
         Ok(noun)
     }
-
+    /// Retrieves the content associated with the given `Noun`.
     #[must_use]
-    pub fn get(&self, noun: Noun) -> Option<&[u8]> {
+    pub fn get(&self, noun: &Noun) -> Option<&[u8]> {
         self.slots
             .iter()
-            .find(|s| s.noun == noun)
+            .find(|s| &s.noun == noun)
             .map(|s| &s.data[..s.len as usize])
     }
-
+    /// Checks if the `CoreOcean` contains the given `Noun`.
     #[must_use]
-    pub fn contains(&self, noun: Noun) -> bool {
+    pub fn contains(&self, noun: &Noun) -> bool {
         self.get(noun).is_some()
     }
-
+    /// Returns the number of `Nouns` stored in the `CoreOcean`.
     #[must_use]
     pub fn len(&self) -> usize {
         self.slots.len()
     }
-
+    /// Checks if the `CoreOcean` is empty.
     #[must_use]
     pub fn is_empty(&self) -> bool {
         self.slots.is_empty()
     }
-
-    fn find(&self, noun: Noun) -> Option<Noun> {
-        self.slots.iter().find(|s| s.noun == noun).map(|s| s.noun.clone())
+    /// Finds the `Noun` associated with the given `Noun`.
+    #[must_use]
+    fn find(&self, noun: &Noun) -> Option<Noun> {
+        self.slots
+            .iter()
+            .find(|s| &s.noun == noun)
+            .map(|s| s.noun.clone())
     }
 }
 
@@ -87,31 +88,29 @@ impl Default for CoreOcean {
     }
 }
 
-impl CoreOcean {
-    pub fn push(&mut self, noun: Noun) {
-        // compat : un Noun sans blob n'entre pas. no-op volontaire.
-        let _ = noun;
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
-
     #[test]
     fn put_get_stable() {
         let mut o = CoreOcean::new();
         let a = o.put(b"hello").unwrap();
         let b = o.put(b"hello").unwrap();
-        assert_eq!(a, b);
-        assert_eq!(o.get(a), Some(&b"hello"[..]));
-        assert_eq!(o.len(), 1);
-        assert_eq!(a, Noun::of(b"hello"));
+        assert!(
+            zuu!([
+                a.clone().eq(&b),
+                o.get(&a.clone()).is_some(),
+                o.get(&a.clone()).eq(&Some(&b"hello"[..])),
+                o.len().eq(&1),
+                a.eq(&Noun::of(b"hello")),
+            ])
+            .is_ok()
+        );
     }
 
     #[test]
     fn unknown_is_none() {
         let o = CoreOcean::new();
-        assert!(o.get(Noun::of(b"nope")).is_none());
+        assert!(o.get(&Noun::of(b"nope")).is_none());
     }
 }

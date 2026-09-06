@@ -6,10 +6,12 @@ members = [
     "maat",
     "noun",
     "plan",
+    "ocean",
     "prism",
     "pulse",
     "ra",
     "re",
+    "zuu",
 ]
 resolver = "3"
 [workspace.package]
@@ -26,6 +28,7 @@ plan = { path = "plan" }
 jinshu = { path = "jinshu" }
 prism = { path = "prism" }
 awq = { path = "awq" }
+zuu = { path = "zuu" }
 blake3 = { version = "1.8.6", default-features = false }
 heapless = { version = "0.9.3", default-features = false }
 x86_64 = { version = "0.15.5", default-features = false, features = [

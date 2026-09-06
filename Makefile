@@ -327,10 +327,8 @@ define test_packages
 		test=0; check=0; clippy=0; fmt=0; machete=0; \
 		start=$$(date +'%H:%M:%S'); \
 		s="ok"; f="ko"; \
-		if [ "$$pkg" = "re" ]; then flags="$(CLIPPY_KERNEL_FLAGS)"; else flags="$(CLIPPY_USER_FLAGS)"; fi; \
-		if [ "$$pkg" != "re" ] && [ "$$pkg" != "maat" ] && [ "$$pkg" != "ji" ] && [ "$$pkg" != "zuu" ] && [ "$$pkg" != "hu" ]; then \
-			$(CARGO) test -p $$pkg --lib --release --jobs $(NUM_JOBS) > ci/stdout/$$pkg/test.log 2> ci/stderr/$$pkg/test.log || test=1; \
-		fi; \
+		if [ "$$pkg" == "re" ]; then flags="$(CLIPPY_KERNEL_FLAGS)"; else flags="$(CLIPPY_USER_FLAGS)"; fi; \
+		if [ "$$pkg" != "re" ] && [ "$$pkg" != "maat" ] ; then  $(CARGO) test -p $$pkg --lib --release --jobs $(NUM_JOBS) > ci/stdout/$$pkg/test.log 2> ci/stderr/$$pkg/test.log || test=1; fi; \
 		$(CARGO) check -p $$pkg --lib --release --jobs $(NUM_JOBS) > ci/stdout/$$pkg/check.log 2> ci/stderr/$$pkg/check.log || check=1; \
 		$(CARGO) clippy -p $$pkg --release --jobs $(NUM_JOBS) -- $$flags > ci/stdout/$$pkg/clippy.log 2> ci/stderr/$$pkg/clippy.log || clippy=1; \
 		$(CARGO) fmt -p $$pkg -- --check > ci/stdout/$$pkg/fmt.log 2> ci/stderr/$$pkg/fmt.log || fmt=1; \

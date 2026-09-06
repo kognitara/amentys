@@ -1,0 +1,9 @@
+[package]
+name = "zuu"
+license-file.workspace = true
+edition.workspace = true
+publish.workspace = true
+version.workspace = true
+
+[dependencies]
+ra = { workspace = true }
