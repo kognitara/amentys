@@ -10,3 +10,4 @@ nvme-1.img
 qemu.log
 *.core
 amentys.iso
+/amentys-uefi.img
