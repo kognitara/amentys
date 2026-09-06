@@ -1,13 +1,27 @@
 SHELL := $(shell which bash)
 NVME_IMG := nvme-1.img
 NVME_SIZE := 50G
-CARGO := cargo
-QEMU := sudo qemu-system-x86_64
+CARGO := cargo +nightly
+QEMU := qemu-system-x86_64
 
 # Paths for OVMF firmware, disk image, and ISO file
-OVMF_PATH := /usr/share/edk2/ovmf/OVMF_CODE.fd
-IMAGE_PATH := target/amentys-uefi.img
-ISO_PATH := target/amentys.iso
+OVMF_CODE := $(firstword $(wildcard \
+  /usr/share/OVMF/OVMF_CODE_4M.fd \
+  /usr/share/OVMF/OVMF_CODE.fd \
+  /usr/share/edk2/ovmf/OVMF_CODE.fd \
+  /usr/share/edk2/x64/OVMF_CODE.4m.fd \
+  /usr/share/edk2-ovmf/x64/OVMF_CODE.fd))
+
+OVMF_VARS := $(firstword $(wildcard \
+  /usr/share/OVMF/OVMF_VARS_4M.fd \
+  /usr/share/OVMF/OVMF_VARS.fd \
+  /usr/share/edk2/ovmf/OVMF_VARS.fd \
+  /usr/share/edk2/x64/OVMF_VARS.4m.fd \
+  /usr/share/edk2-ovmf/x64/OVMF_VARS.fd))
+
+QEMU_SMP := 2
+IMAGE_PATH := amentys-uefi.img
+ISO_PATH := amentys.iso
 TIMEOUT := 300
 SUB_PROC := 2
 
@@ -26,28 +40,41 @@ else
 endif
 
 # Configure QEMU for launching the raw disk image
-QEMU_FLAGS := -machine q35 -bios $(OVMF_PATH) \
-              -enable-kvm -m 2G \
-              -vga virtio \
-              -device ahci,id=ahci \
-              -drive format=raw,file=$(IMAGE_PATH),if=none,id=bootdisk \
-              -device ide-hd,bus=ahci.0,drive=bootdisk \
-              -drive file=$(NVME_IMG),if=none,id=drv1,format=raw \
-              -device nvme,drive=drv1,serial=nvme-1 \
-              -serial stdio \
-              -device isa-debug-exit,iobase=0xf4,iosize=0x04 --full-screen -d int,cpu_reset -no-shutdown -no-reboot
-QEMU_FLAGS += -d int,guest_errors -D qemu.log
+QEMU := qemu-system-x86_64
+QEMU_SMP := 2
+
+QEMU_FLAGS := \
+  -machine q35,accel=kvm \
+  -cpu host \
+  -smp $(QEMU_SMP) \
+  -m 2G \
+  -display gtk \
+  -serial mon:stdio \
+  -drive if=pflash,format=raw,readonly=on,file=$(OVMF_CODE) \
+  -drive if=pflash,format=raw,file=$(OVMF_VARS) \
+  -drive if=none,format=raw,file=$(IMAGE_PATH),id=bootdisk \
+  -device virtio-blk-pci,drive=bootdisk,bootindex=1 \
+  -drive if=none,format=raw,file=$(NVME_IMG),id=drv1 \
+  -device nvme,drive=drv1,serial=nvme-1 \
+  -device isa-debug-exit,iobase=0xf4,iosize=0x04 \
+  -no-reboot -no-shutdown
 
 # Configure QEMU for launching the ISO file
-QEMU_ISO_FLAGS := -machine q35 -bios $(OVMF_PATH) \
-                  -enable-kvm -m 2G \
-                  -vga virtio \
-                  -drive format=raw,file=$(ISO_PATH),index=0,media=cdrom \
-                  -drive file=$(NVME_IMG),if=none,id=drv1,format=raw \
-                  -device nvme,drive=drv1,serial=nvme-1 \
-                  -serial stdio \
-                  -device isa-debug-exit,iobase=0xf4,iosize=0x04 --full-screen --no-reboot
-
+QEMU_ISO_FLAGS := \
+  -machine q35,accel=kvm \
+  -cpu host \
+  -smp $(QEMU_SMP) \
+  -m 2G \
+  -display gtk \
+  -serial mon:stdio \
+  -drive if=pflash,format=raw,readonly=on,file=$(OVMF_CODE) \
+  -drive if=pflash,format=raw,file=$(OVMF_VARS) \
+  -drive if=none,format=raw,file=$(ISO_PATH),id=cdrom,media=cdrom \
+  -device ide-cd,drive=cdrom,bootindex=1 \
+  -drive if=none,format=raw,file=$(NVME_IMG),id=drv1 \
+  -device nvme,drive=drv1,serial=nvme-1 \
+  -device isa-debug-exit,iobase=0xf4,iosize=0x04 \
+  -no-reboot -no-shutdown
 # User Profile: Absolute prohibition of panicking or crashing wildly
 CLIPPY_USER_FLAGS := -D warnings \
                      -D clippy::undocumented_unsafe_blocks \
@@ -102,11 +129,7 @@ help: ## Print this help list with all available commands
 demo:
 	@python3 -m http.server -d demo/
 ci: clean ## Run all tests (cargo test, clippy, fmt, machete) on the packages
-	@$(call disable_config)
 	@$(call test_packages)
-	@$(call enable_config)
-hub: ## Start a local Mercurial server to serve the repository
-	@hg serve
 image: ci ## Compile the kernel and init, then generate the raw disk image (.img)
 	@$(call disable_cursor)
 	@$(call make_image)
@@ -122,7 +145,6 @@ clean: ## Clean the project (remove the target folder, logs, and reformat the co
 	@rm -rf ci/stdout ci/stderr target/ ISO/
 	@rm -f $(IMAGE_PATH) $(ISO_PATH) nvme-1.img qemu.log
 launch:
-	@$(call make_image)
 	@$(call run)
 up: image ## Compile the disk image and launch it in QEMU with KVM
 	@$(call center_text, AMENTYS (IMG))
@@ -145,6 +167,7 @@ documentation: ## Generate the Rust documentation for the project
 debug: ## Display detected packages and CPU cores used for compilation
 	@echo -e "Detected packages  : $(C_OK)$(PACKAGES)$(C_RESET)"
 	@echo -e "Detected cpu cores : $(C_OK)$(NUM_JOBS)$(C_RESET) cpus used for compilation"
+	@echo "$(QEMU) $(QEMU_FLAGS)"
 
 # Macro to clean logs
 define clean_logs
@@ -152,21 +175,21 @@ define clean_logs
 endef
 # Macro to run QEMU with the specified flags
 define run
-	@$(QEMU) $(QEMU_FLAGS)
+	@sudo $(QEMU) $(QEMU_FLAGS)
 endef
 
 # Macro to run QEMU with the ISO flags
 define run_iso
-	@$(QEMU) $(QEMU_ISO_FLAGS)
+	@sudo $(QEMU) $(QEMU_ISO_FLAGS)
 endef
 
 # Macro to compile the UEFI image with Limine
 define make_image
 	@$(call center_text, Building kernel (re))
-	@RUSTFLAGS="-Zunstable-options" RUST_TARGET_PATH=$(shell pwd) $(CARGO) build --jobs $(NUM_JOBS) --bin re --release --target x86_64-amentys
+	RUSTFLAGS="-C relocation-model=static -C link-arg=-no-pie" $(CARGO) build --jobs $(NUM_JOBS) --target x86_64-unknown-none -Zbuild-std=core,alloc,compiler_builtins --bin re --release
 	@$(call center_text, Building init (maat))
 	# Using the standard target without a custom linker.ld
-	@RUSTFLAGS="-Zunstable-options" $(CARGO) build --jobs $(NUM_JOBS) --bin maat --release --target x86_64-unknown-none
+	RUSTFLAGS="-C relocation-model=static -C link-arg=-no-pie" $(CARGO) build --jobs $(NUM_JOBS) --target x86_64-unknown-none -Zbuild-std=core,alloc,compiler_builtins --bin maat --release
 	@$(call center_text, Creating UEFI Boot Image with Limine)
 	@mkdir -p target/
 	@dd if=/dev/zero of=$(IMAGE_PATH) bs=1M count=64 status=none
@@ -177,27 +200,26 @@ define make_image
 	@if [ ! -f target/BOOTX64.EFI ]; then cp BOOTX64.EFI target/BOOTX64.EFI; fi
 	@mcopy -i $(IMAGE_PATH) target/BOOTX64.EFI ::/EFI/BOOT/BOOTX64.EFI
 	@mcopy -i $(IMAGE_PATH) limine.conf ::/limine.conf
-	@if [ -f "assets/wallpaper.jpg" ]; then mcopy -i $(IMAGE_PATH) assets/wallpaper.jpg ::/wallpaper.jpg; fi
-	@mcopy -i $(IMAGE_PATH) target/x86_64-amentys/release/re ::/re
-	@mcopy -i $(IMAGE_PATH) target/x86_64-unknown-none/release/maat ::/maat
+	@if [ -f "assets/wallpaper.jpg" ]; then mcopy -i $(IMAGE_PATH) assets/wallpaper.jpg ::/boot/wallpaper.jpg; fi
+    @mcopy -i $(IMAGE_PATH) target/x86_64-unknown-none/release/re  ::/boot/re
+    @mcopy -i $(IMAGE_PATH) target/x86_64-unknown-none/release/maat ::/boot/maat
 	@$(call center_text, Image $(IMAGE_PATH) ready!)
 endef
 
 # Macro to compile the bootable ISO with Limine
 define make_iso
-	@$(call center_text, Building kernel (re))
-	@RUSTFLAGS="-Zunstable-options" RUST_TARGET_PATH=$(shell pwd) $(CARGO) build --jobs $(NUM_JOBS) --bin re --release --target x86_64-amentys
+@$(call center_text, Building kernel (re))
+	RUSTFLAGS="-C relocation-model=static -C link-arg=-no-pie" $(CARGO) build --jobs $(NUM_JOBS) --target x86_64-unknown-none -Zbuild-std=core,alloc,compiler_builtins --bin re --release
 	@$(call center_text, Building init (maat))
 	# Using the standard target without a custom linker.ld
-	@RUSTFLAGS="-Zunstable-options" $(CARGO) build --jobs $(NUM_JOBS) --bin maat --release --target x86_64-unknown-none
+	RUSTFLAGS="-C relocation-model=static -C link-arg=-no-pie" $(CARGO) build --jobs $(NUM_JOBS) --target x86_64-unknown-none -Zbuild-std=core,alloc,compiler_builtins --bin maat --release
 	@$(call center_text, Creating Bootable ISO with Limine)
 	@mkdir -p ISO/boot ISO/EFI/BOOT
 	@if [ -f BOOTX64.EFI ]; then cp BOOTX64.EFI ISO/EFI/BOOT/BOOTX64.EFI; fi
 	@cp limine.conf ISO/limine.conf
 	@cp limine.conf ISO/boot/limine.conf
-	@if [ -f "assets/wallpaper.png" ]; then cp assets/wallpaper.png ISO/wallpaper.png; fi
-	
-	@cp target/x86_64-amentys/release/re ISO/boot/re
+	@if [ -f "assets/wallpaper.jpg" ]; then cp assets/wallpaper.jpg ISO/boot/wallpaper.jpg; fi
+	@cp target/x86_64-unknown-none/release/re ISO/boot/re
 	@cp target/x86_64-unknown-none/release/maat ISO/boot/maat
 	@if [ -f limine-uefi-cd.bin ]; then cp limine-uefi-cd.bin ISO/limine-uefi-cd.bin; fi
 	
@@ -236,7 +258,6 @@ endef
 # Comprehensive test suite for all workspace packages
 define test_packages
 	@$(call center_text, Amentys Continuous Integration Testing)
-	@$(call disable_config)
 	status=0; \
 	termwidth=$$(tput cols 2>/dev/null || echo 80); \
 	table_width=120; \
@@ -285,7 +306,8 @@ define test_packages
 	start_col="$(C_BLUE)"; end_col="$(C_BLUE)"; version_col="$(C_CYAN)"; edition_col="$(C_CYAN)"; pkg_col="$(C_WHITE)"; desc_col="$(C_MAGENTA)"; \
 	global_end=$$(date +'%H:%M:%S'); \
 	printf "%s" "$$pad_str$(C_WHITE)"; \
-	printf '%s%-73s%s %s%-5s%s %s%-5s%s %s%-5s%s %s%-5s%s %s%10s%s %s%-3s%s\n' \
+	printf '%s%-5s%s %s%-73s%s %s%-5s%s %s%-5s%s %s%-5s%s %s%-5s%s %s%10s%s %s%-3s%s\n' \
+		"$${desc_col}" "0/$${#pkgs[@]}" "$(C_RESET)" \
 		"$${desc_col}" "Amentys" "$(C_RESET)" \
 		"$${start_col}" "$$global_start" "$(C_RESET)" \
 		"$${end_col}" "$$global_end" "$(C_RESET)" \
@@ -296,6 +318,7 @@ define test_packages
 	for i in "$${!pkgs[@]}"; do \
 		failed_steps=(); \
 		pkg="$${pkgs[$$i]}"; \
+		step="$$((i + 1))/$${#pkgs[@]}"; \
 		version="$${versions[$$i]}"; \
 		edition="$${editions[$$i]}"; \
 		description="$${descs[$$i]}"; \
@@ -332,7 +355,8 @@ define test_packages
 			status=1; \
 		fi; \
 		printf "%s" "$$pad_str";\
-		printf '%s%-73s%s %s%-5s%s %s%-5s%s %s%-5s%s %s%-5s%s %s%10s%s %s%-3s%s\n' \
+		printf '%s%-5s%s %s%-73s%s %s%-5s%s %s%-5s%s %s%-5s%s %s%-5s%s %s%10s%s %s%-3s%s\n' \
+			"$${desc_col}" "$$step" "$(C_RESET)" \
 			"$${desc_col}" "$$description" "$(C_RESET)" \
 			"$${start_col}" "$$start" "$(C_RESET)" \
 			"$${end_col}" "$$end" "$(C_RESET)" \
@@ -349,20 +373,6 @@ define test_packages
 		printf '%s\n\n' "Some tests failed! Check the logs in ci/stdout and ci/stderr.$(C_RESET)"; \
 	fi; \
 	exit $$status
-endef
-# Cargo configuration management to isolate the environment
-define disable_config
-	mv .cargo/config.toml .cargo/config.toml.tmp 2>/dev/null || true;
-endef
-
-# Cargo configuration management to restore the environment
-define enable_config
-	mv .cargo/config.toml.tmp .cargo/config.toml 2>/dev/null || true;
-endef
-
-# Cargo configuration management to restore the environment (silent)
-define restore_config
-	mv .cargo/config.toml.tmp .cargo/config.toml 2>/dev/null || true;
 endef
 
 # Terminal cursor management

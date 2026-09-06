@@ -19,7 +19,7 @@ pub fn init() {
             GDT.1.kernel_code,
             GDT.1.kernel_data,
         )
-        .expect("Erreur lors de l'écriture dans le registre MSR STAR");
+        .expect("Error writing MSR STAR");
 
         LStar::write(x86_64::VirtAddr::new(
             syscall_handler_wrapper as *const () as u64,

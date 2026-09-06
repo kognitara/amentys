@@ -18,7 +18,7 @@ in the subject.
 
 Please include:
 
-- affected version, commit, or component;
+- the affected version, commit, or component;
 - steps to reproduce or a proof of concept;
 - expected and observed behavior;
 - security impact and possible mitigations.

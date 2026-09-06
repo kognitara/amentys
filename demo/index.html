@@ -35,7 +35,7 @@
             align-items: center;
             justify-content: center;
             outline: none;
-            background-image: url("assets/amentys.jpg");
+            background-image: url("amentys.jpg");
         }
 
         /* Indicateur très subtil du focus (remplace la bordure) */
@@ -60,7 +60,7 @@
             font-size: 1.5rem;
             color: #333;
             user-select: none;
-            background-image: url("assets/wallpaper.png");
+            background-image: url("amentys.jpg");
         }
 
         /* Le dmenu (Overlay) */
@@ -127,124 +127,124 @@
 
 <body>
 
-    <div id="tesseract-grid">
-        <div class="panel" tabindex="0" id="panel-0">
-            <div class="coords">% 1¹</div>
-            <div class="content"></div>
-        </div>
-        <div class="panel" tabindex="0" id="panel-1">
-            <div class="coords">% 1²</div>
-            <div class="content">Vide</div>
-        </div>
-        <div class="panel" tabindex="0" id="panel-2">
-            <div class="coords">% 1³</div>
-            <div class="content">Vide</div>
-        </div>
-        <div class="panel" tabindex="0" id="panel-3">
-            <div class="coords">% 1⁴</div>
-            <div class="content">Vide</div>
-        </div>
+<div id="tesseract-grid">
+    <div class="panel" tabindex="0" id="panel-0">
+        <div class="coords">% 1¹</div>
+        <div class="content"></div>
     </div>
-
-    <!-- Interface du Menu Overlay -->
-    <div id="dmenu" class="hidden">
-        <input type="text" id="dmenu-input" placeholder="Rechercher un plan (ex: net, log, dev)..." autocomplete="off">
-        <ul id="dmenu-list"></ul>
+    <div class="panel" tabindex="0" id="panel-1">
+        <div class="coords">% 1²</div>
+        <div class="content">Vide</div>
     </div>
+    <div class="panel" tabindex="0" id="panel-2">
+        <div class="coords">% 1³</div>
+        <div class="content">Vide</div>
+    </div>
+    <div class="panel" tabindex="0" id="panel-3">
+        <div class="coords">% 1⁴</div>
+        <div class="content">Vide</div>
+    </div>
+</div>
 
-    <script>
-        const panels = document.querySelectorAll('.panel');
-        const dmenu = document.getElementById('dmenu');
-        const dmenuInput = document.getElementById('dmenu-input');
-        const dmenuList = document.getElementById('dmenu-list');
+<!-- Interface du Menu Overlay -->
+<div id="dmenu" class="hidden">
+    <input type="text" id="dmenu-input" placeholder="Rechercher un plan (ex: net, log, dev)..." autocomplete="off">
+    <ul id="dmenu-list"></ul>
+</div>
 
-        let activePanel = panels[0];
-        activePanel.focus();
+<script>
+    const panels = document.querySelectorAll('.panel');
+    const dmenu = document.getElementById('dmenu');
+    const dmenuInput = document.getElementById('dmenu-input');
+    const dmenuList = document.getElementById('dmenu-list');
 
-        // La base de données de nos Nœuds/Plans
-        const amentysPlans = [
-            { name: "qwx_terminal", tags: "dev shell core" },
-            { name: "jinshu_graph", tags: "db vector data" },
-            { name: "net_monitor", tags: "net ping trace" },
-            { name: "audio_mixer", tags: "media sound" },
-            { name: "system_logs", tags: "sys admin log" }
-        ];
+    let activePanel = panels[0];
+    activePanel.focus();
 
-        // Gestion basique du focus à la souris (pour le proto)
-        panels.forEach(p => {
-            p.addEventListener('click', () => {
-                activePanel = p;
-                p.focus();
-            });
+    // La base de données de nos Nœuds/Plans
+    const amentysPlans = [
+        {name: "qwx_terminal", tags: "dev shell core"},
+        {name: "jinshu_graph", tags: "db vector data"},
+        {name: "net_monitor", tags: "net ping trace"},
+        {name: "audio_mixer", tags: "media sound"},
+        {name: "system_logs", tags: "sys admin log"}
+    ];
+
+    // Gestion basique du focus à la souris (pour le proto)
+    panels.forEach(p => {
+        p.addEventListener('click', () => {
+            activePanel = p;
+            p.focus();
         });
+    });
 
-        // Gestion des raccourcis clavier
-        document.addEventListener('keydown', (e) => {
-            // Raccourci pour ouvrir le menu (Ctrl + Espace)
-            if (e.ctrlKey && e.code === 'Space') {
-                e.preventDefault();
-                dmenu.classList.remove('hidden');
-                dmenuInput.value = '';
-                renderDmenu('');
-                dmenuInput.focus();
-            }
+    // Gestion des raccourcis clavier
+    document.addEventListener('keydown', (e) => {
+        // Raccourci pour ouvrir le menu (Ctrl + Espace)
+        if (e.ctrlKey && e.code === 'Space') {
+            e.preventDefault();
+            dmenu.classList.remove('hidden');
+            dmenuInput.value = '';
+            renderDmenu('');
+            dmenuInput.focus();
+        }
 
-            // Échap pour annuler et fermer le menu
-            if (e.code === 'Escape' && !dmenu.classList.contains('hidden')) {
+        // Échap pour annuler et fermer le menu
+        if (e.code === 'Escape' && !dmenu.classList.contains('hidden')) {
+            dmenu.classList.add('hidden');
+            activePanel.focus();
+        }
+    });
+
+    // Filtrage en temps réel type "dmenu"
+    dmenuInput.addEventListener('input', (e) => {
+        renderDmenu(e.target.value);
+    });
+
+    // Simulation de sélection avec Entrée
+    dmenuInput.addEventListener('keydown', (e) => {
+        if (e.code === 'Enter') {
+            const selected = dmenuList.querySelector('.selected');
+            if (selected) {
+                const planName = selected.getAttribute('data-name');
+                activePanel.querySelector('.content').textContent = planName;
+                activePanel.querySelector('.content').style.color = "#00ffcc";
                 dmenu.classList.add('hidden');
                 activePanel.focus();
             }
-        });
-
-        // Filtrage en temps réel type "dmenu"
-        dmenuInput.addEventListener('input', (e) => {
-            renderDmenu(e.target.value);
-        });
-
-        // Simulation de sélection avec Entrée
-        dmenuInput.addEventListener('keydown', (e) => {
-            if (e.code === 'Enter') {
-                const selected = dmenuList.querySelector('.selected');
-                if (selected) {
-                    const planName = selected.getAttribute('data-name');
-                    activePanel.querySelector('.content').textContent = planName;
-                    activePanel.querySelector('.content').style.color = "#00ffcc";
-                    dmenu.classList.add('hidden');
-                    activePanel.focus();
-                }
-            }
-        });
-
-        function renderDmenu(query) {
-            dmenuList.innerHTML = '';
-            const q = query.toLowerCase();
-
-            // Filtre par nom ou par tag
-            const filtered = amentysPlans.filter(p =>
-                p.name.toLowerCase().includes(q) ||
-                p.tags.toLowerCase().includes(q)
-            );
-
-            filtered.forEach((p, index) => {
-                const li = document.createElement('li');
-                li.setAttribute('data-name', p.name);
-
-                const nameSpan = document.createElement('span');
-                nameSpan.textContent = p.name;
-
-                const tagSpan = document.createElement('span');
-                tagSpan.textContent = `[${p.tags}]`;
-                tagSpan.className = 'tag';
-
-                li.appendChild(nameSpan);
-                li.appendChild(tagSpan);
-
-                // Auto-sélectionne le premier résultat pour la vitesse
-                if (index === 0) li.classList.add('selected');
-                dmenuList.appendChild(li);
-            });
         }
-    </script>
+    });
+
+    function renderDmenu(query) {
+        dmenuList.innerHTML = '';
+        const q = query.toLowerCase();
+
+        // Filtre par nom ou par tag
+        const filtered = amentysPlans.filter(p =>
+            p.name.toLowerCase().includes(q) ||
+            p.tags.toLowerCase().includes(q)
+        );
+
+        filtered.forEach((p, index) => {
+            const li = document.createElement('li');
+            li.setAttribute('data-name', p.name);
+
+            const nameSpan = document.createElement('span');
+            nameSpan.textContent = p.name;
+
+            const tagSpan = document.createElement('span');
+            tagSpan.textContent = `[${p.tags}]`;
+            tagSpan.className = 'tag';
+
+            li.appendChild(nameSpan);
+            li.appendChild(tagSpan);
+
+            // Auto-sélectionne le premier résultat pour la vitesse
+            if (index === 0) li.classList.add('selected');
+            dmenuList.appendChild(li);
+        });
+    }
+</script>
 </body>
 
 </html>

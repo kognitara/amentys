@@ -14,7 +14,7 @@ use noun::Noun;
 
 /// The maximum number of simultaneous branches in memory for Amentys
 pub const MAX_BRANCHES: usize = 16;
-/// Represent the type of a branch in the Amentys system.
+/// Represent the type of branch in the Amentys system.
 ///
 /// # Note
 /// - `Main`: The official and immutable state of the machine.
@@ -297,7 +297,7 @@ impl Branch {
     /// Attempts to promote the deployment branch to the main system.
     /// Fails if the Kpack patches did not achieve the exact Noun from the server.
     /// # Returns
-    /// Returns `true` if the promotion was successful and the branch type was changed to Main, or `false` if the promotion failed (e.g., the current root does not match the target Noun).
+    /// `true` if the promotion was successful and the branch type was changed to Main, or `false` if the promotion failed (e.g., the current root does not match the target Noun).
     /// # Examples
     /// ```no_run
     /// use noun::Noun;
@@ -339,6 +339,7 @@ mod tests {
     use super::*;
     use core::assert;
     use core::assert_eq;
+    use core::prelude::rust_2024::test;
     #[test]
     fn test_awq_state_deployment_lifecycle() {
         let initial_noun = Noun::of(&[0x01; 32]);
@@ -346,14 +347,11 @@ mod tests {
 
         let server_target = Noun::of(&[0xFF; 32]); // La cible du réseau
 
-        // 1. On lance le clonage réseau
         let deploy_index = state.spawn_deployment(&server_target).unwrap();
         assert_eq!(state.branches.len(), 2);
 
-        // 2. On simule la réception des patchs Kpack qui modifient la branche
         state.branches[deploy_index].root = server_target;
 
-        // 3. On finalise l'installation
         let success = state.finalize_deployment(deploy_index);
 
         assert!(success);

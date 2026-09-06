@@ -9,23 +9,17 @@ use ra::println;
 use x86_64::VirtAddr;
 use x86_64::structures::paging::{FrameAllocator, Mapper, Page, PageTableFlags, Size4KiB};
 use xmas_elf::ElfFile;
-#[allow(clippy::too_many_lines)]
-#[unsafe(no_mangle)]
-/// Point d'entrée principal du noyau Amentys (`_start`).
 ///
 /// # Panics
-///
-/// Cette fonction panique si le bootloader Limine ne fournit pas les structures de base
-/// requises (HHDM, carte mémoire, ou Framebuffer), empêchant l'initialisation du système.
+/// fail is not a valid framebuffer address.
+#[allow(clippy::too_many_lines)]
+#[cfg_attr(not(test), unsafe(no_mangle))]
 pub extern "C" fn _start(_info: *const ()) -> ! {
-    // 1. Désactivation initiale des interruptions
     x86_64::instructions::interrupts::disable();
-    // Configuration de base du processeur (GDT, IDT, Appels système)
     re::gdt::init();
     re::interrupts::init();
     re::syscall::init();
     re::init_heap();
-    // 2. Initialisation et nettoyage de l'écran via os-terminal
     if let Some(framebuffer_response) = re::FRAMEBUFFER_REQUEST.response()
         && let Some(framebuffer) = framebuffer_response.framebuffers().first()
     {
@@ -34,7 +28,7 @@ pub extern "C" fn _start(_info: *const ()) -> ! {
 
         // SAFETY: `framebuffer.address()` is a raw MMIO address guaranteed to be valid by the boot protocol.
         unsafe {
-            core::ptr::write_bytes(framebuffer.address(), 0, size);
+            ptr::write_bytes(framebuffer.address(), 0, size);
         }
 
         // We create the os-terminal compatible drawing target
@@ -45,10 +39,7 @@ pub extern "C" fn _start(_info: *const ()) -> ! {
             pitch: framebuffer.pitch,
         };
         // We lock and initialize the global kernel terminal
-        *ra::TERMINAL.lock() = Some(Terminal::new(
-            screen_data,
-            Box::new(BitmapFont), // Notre FontManager alloué dynamiquement !
-        ));
+        *ra::TERMINAL.lock() = Some(Terminal::new(screen_data, Box::new(BitmapFont)));
     }
 
     // memory management setup
@@ -190,7 +181,7 @@ pub extern "C" fn _start(_info: *const ()) -> ! {
                         "push 0x2B", // CS utilisateur (GDT index 0x28 | RPL 3)
                         "push {entry}",
                         "iretq",
-                        stack = in(reg) (stack_end.as_u64()),
+                        stack = in(reg) stack_end.as_u64(),
                         entry = in(reg) entry_point,
                         options(noreturn)
                     );
@@ -198,14 +189,12 @@ pub extern "C" fn _start(_info: *const ()) -> ! {
             }
         }
     }
-
-    // Boucle de halte si le saut échoue
     loop {
         x86_64::instructions::hlt();
     }
 }
 
-#[panic_handler]
+#[cfg_attr(not(test), panic_handler)]
 fn panic(info: &PanicInfo) -> ! {
     println!("{}", info.message());
     loop {

@@ -51,9 +51,6 @@ xmas-elf = "0.10.0"
 os-terminal = { version = "0.7.4", default-features = false, features = [
     "bitmap",
 ] }
-chacha20 = { version = "0.10.1", default-features = false, features = [
-    "cipher",
-] }
 
 [profile.dev]
 opt-level = 2

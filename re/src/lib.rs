@@ -10,6 +10,7 @@ pub mod interrupts;
 pub mod memory;
 /// Module for handling system calls
 pub mod syscall;
+pub mod time;
 
 use linked_list_allocator::LockedHeap;
 

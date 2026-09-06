@@ -19,7 +19,7 @@ names, or social-media identities.
 
 ## Official status
 
-Only the rights holder or an explicitly authorized maintainer may describe a release, build,
+Only the right holder or an explicitly authorized maintainer may describe a release, build,
 hardware device, or service as official, certified, or endorsed by Amentys.
 
 Questions about branding should be raised through the official repository before publication.
