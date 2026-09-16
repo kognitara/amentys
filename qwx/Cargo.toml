@@ -1,0 +1,8 @@
+[package]
+name = "qwx"
+license-file.workspace = true
+edition.workspace = true
+publish.workspace = true
+version.workspace = true
+
+[dependencies]

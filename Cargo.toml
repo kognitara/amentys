@@ -11,7 +11,7 @@ members = [
     "pulse",
     "ra",
     "re",
-    "zuu",
+    "zuu", "qwx", "cubefs",
 ]
 resolver = "3"
 [workspace.package]
