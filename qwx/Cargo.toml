@@ -1,8 +1,11 @@
 [package]
 name = "qwx"
+description = "Dimensional text editor"
 license-file.workspace = true
 edition.workspace = true
 publish.workspace = true
 version.workspace = true
 
 [dependencies]
+ra = { workspace = true }
+linked_list_allocator = { workspace = true }

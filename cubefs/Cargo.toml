@@ -1,5 +1,6 @@
 [package]
 name = "cubefs"
+description = "Content-addressed filesystem via KPACK recipes"
 license-file.workspace = true
 edition.workspace = true
 publish.workspace = true

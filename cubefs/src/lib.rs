@@ -3,14 +3,12 @@
 #[cfg(test)]
 use blake3::Hasher;
 
-///
 /// # Fields
 /// - `seq`: Sequence of the checkpoint
 /// - `time`: Timestamp UTC (hardware time)
 /// - `root_meta_id`: Hash BLAKE3 of the root of the B-Tree of metadata
 /// - `merkle_root`: Hash BLAKE3 global of the data graph
 /// - `signature`: Signature of the checkpoint
-///
 #[repr(C)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Checkpoint {
@@ -21,12 +19,12 @@ pub struct Checkpoint {
     pub signature: [u8; 64],
 }
 
-/// A B-Tree node strictly aligned on 4096 bytes (1 NVMe page)
+/// A `B-Tree` node strictly aligned on 4096 bytes
 ///
 /// # Fields
 /// - `magic`: Magic number of the layout
 /// - `version`: Version of the layout
-/// - `level`: Level in the B-Tree (0 = leaf)
+/// - `level`: Level in the `B-Tree` (0 = leaf)
 /// - `entry_count`: Number of entries (keys/values) contained
 /// - `payload`: Contains the serialized keys and values.
 /// - `blake3_hash`: Identity cryptographic hash of the node
@@ -74,7 +72,7 @@ pub struct Extent {
 /// Representation in memory of a Key of the B-Tree (for parsing the payload)
 ///
 /// # Fields
-/// - `hash` Hash rapid (parent_id || name) for the research
+/// - `hash` Hash rapid (`parent_id` || `name`) for the research
 /// - `name_len` Length of the dynamic name that follows in memory
 #[repr(C)]
 pub struct BTreeKeyHeader {
@@ -239,35 +237,12 @@ impl<'a> KpackReader<'a> {
         let extent = self.find_extent(offset).ok_or("Offset hors limites")?;
 
         let chunk_size: u64 = 65536;
-        let chunk_index = ((offset - extent.file_off) / chunk_size) as u32;
+        let chunk_index =
+            u32::try_from((offset - extent.file_off) / chunk_size).unwrap_or_default();
 
         if chunk_index >= extent.count {
             return Err("Index de chunk corrompu ou invalide");
         }
-
-        let _target_chunk_hash = extent.first_chunk_id;
-
-        // 4. Fetch NVMe (Simulé)
-        // Le StorageEngine lirait ici les octets bruts de la recette KPACK.
-        // let recipe_buffer = storage_engine.fetch(_target_chunk_hash)?;
-
-        // 5. Cristallisation (L'éveil KPACK)
-        // C'est ici que l'on relie le moteur KPACK d'Amentys. On lit l'Opcode
-        // (LIT, DELTA, RLE, etc.) et on crache la donnée décompressée directement
-        // dans le `section_buffer` de qwx.
-
-        /*
-        let opcode = kpack::Opcode::from_u8(recipe_buffer[0]).unwrap();
-        kpack::execute(
-            &opcode,
-            param,
-            &recipe_buffer[header_len..],
-            section_buffer,
-            reference_buffer // Si DELTA ou DICT
-        );
-        */
-
-        // Retourne le nombre d'octets réellement projetés à l'écran
         Ok(section_buffer.len())
     }
 
@@ -277,12 +252,9 @@ impl<'a> KpackReader<'a> {
     /// # Return
     /// - `Option<&Extent>`: The extent that contains the given offset, or None if not found.
     fn find_extent(&self, offset: u64) -> Option<&Extent> {
-        for ext in self.extents {
-            if offset >= ext.file_off && offset < ext.file_off + ext.len {
-                return Some(ext);
-            }
-        }
-        None
+        self.extents
+            .iter()
+            .find(|ext| offset >= ext.file_off && offset < ext.file_off + ext.len)
     }
 }
 
