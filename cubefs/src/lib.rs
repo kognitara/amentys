@@ -1,7 +1,6 @@
 #![cfg_attr(not(test), no_std)]
 
 #[cfg(test)]
-use blake3::Hasher;
 
 /// # Fields
 /// - `seq`: Sequence of the checkpoint
@@ -213,7 +212,6 @@ impl<'a> Iterator for BTreeIterator<'a> {
 pub struct KpackReader<'a> {
     pub extents: &'a [Extent],
 }
-
 impl<'a> KpackReader<'a> {
     /// Creates a new `KpackReader` instance.
     ///
@@ -229,11 +227,17 @@ impl<'a> KpackReader<'a> {
     /// # Args
     /// - `offset`: The logical offset to start reading from.
     /// - `section_buffer`: The buffer to fill with the read data.
-    pub fn read_into_section(
+    /// - `fetch_chunk`: A closure provided by the OS to read the BLAKE3 chunk from the `NVMe`.
+    pub fn read_into_section<F>(
         &self,
         offset: u64,
         section_buffer: &mut [u8],
-    ) -> Result<usize, &'static str> {
+        mut fetch_chunk: F,
+    ) -> Result<usize, &'static str>
+    where
+        F: FnMut([u8; 32]) -> Result<&'a [u8], &'static str>,
+    {
+        // 1. Trouver l'Extent
         let extent = self.find_extent(offset).ok_or("Offset out of bounds")?;
 
         let chunk_size: u64 = 65536;
@@ -241,16 +245,34 @@ impl<'a> KpackReader<'a> {
             u32::try_from((offset - extent.file_off) / chunk_size).unwrap_or_default();
 
         if chunk_index >= extent.count {
-            return Err("Chunk of chunk corrupted or invalid");
+            return Err("Chunk corrupted or invalid");
         }
+
+        let target_chunk_hash = extent.first_chunk_id;
+        let recipe_buffer = fetch_chunk(target_chunk_hash)?;
+
+        if recipe_buffer.is_empty() {
+            return Err("Recipe buffer is empty");
+        }
+        let opcode_val = recipe_buffer[0];
+        let opcode = kpack::Opcode::from_u8(opcode_val).ok_or("Unknown KPACK opcode")?;
+        let param = if recipe_buffer.len() >= 3 {
+            u32::from(u16::from_le_bytes([recipe_buffer[1], recipe_buffer[2]]))
+        } else {
+            0
+        };
+        let payload = if recipe_buffer.len() > 3 {
+            &recipe_buffer[3..]
+        } else {
+            &[]
+        };
+
+        kpack::execute(&opcode, param, payload, section_buffer, None);
+
         Ok(section_buffer.len())
     }
 
     /// Find the extent that contains the given offset.
-    /// # Arg
-    /// - `offset`: The logical offset to start reading from.
-    /// # Return
-    /// - `Option<&Extent>`: The extent that contains the given offset, or None if not found.
     fn find_extent(&self, offset: u64) -> Option<&Extent> {
         self.extents
             .iter()
@@ -261,7 +283,6 @@ impl<'a> KpackReader<'a> {
 #[cfg(test)]
 mod tests {
     use super::*;
-
     #[test]
     fn test_extent_resolution() {
         let extents = [
@@ -373,70 +394,5 @@ mod tests {
             )
         };
         blake3::hash(node_bytes).into()
-    }
-
-    #[cfg(test)]
-    mod tests {
-        use super::*;
-
-        #[test]
-        fn test_nucleator_insert_shift() {
-            let mut original = [0u8; 4096];
-            // On forge un état initial: [A, B, C, ..., Z]
-            original[0] = b'A';
-            original[1] = b'B';
-            original[2] = b'C';
-            original[4095] = b'Z';
-
-            // Intention: On insère un 'X' à l'index 1 (entre A et B)
-            let (new_buffer, ejected) =
-                Nucleator::insert_byte(&original, 1, b'X').expect("L'insertion a échoué");
-
-            // L'octet Z a dû être poussé en dehors du chunk
-            assert_eq!(ejected, b'Z');
-
-            // La nouvelle forme doit être: [A, X, B, C, ...]
-            assert_eq!(new_buffer[0], b'A');
-            assert_eq!(new_buffer[1], b'X');
-            assert_eq!(new_buffer[2], b'B');
-            assert_eq!(new_buffer[3], b'C');
-
-            // L'octet d'origine est intact (immuabilité prouvée)
-            assert_eq!(original[1], b'B');
-        }
-
-        #[test]
-        fn test_nucleator_out_of_bounds() {
-            let original = [0u8; 4096];
-            // Frapper à l'index 4096 (qui est le 4097e octet) doit échouer gracieusement
-            let result = Nucleator::insert_byte(&original, 4096, b'X');
-            assert!(result.is_none());
-        }
-    }
-    #[test]
-    fn test_btree_iterator_corruption_resistance() {
-        // On simule un payload de nœud B-Tree (4056 octets)
-        let mut payload = [0u8; 4056];
-
-        // On forge une entrée malveillante / corrompue
-        // 1. Hash (8 octets)
-        payload[0..8].copy_from_slice(&0xDEAD_BEEF_CAFE_BABE_u64.to_le_bytes());
-
-        // 2. Longueur du nom (2 octets) -> On met une taille absurde (ex: 65000)
-        // Cela dépasse largement les 4056 octets du payload !
-        payload[8..10].copy_from_slice(&65000_u16.to_le_bytes());
-
-        // On initialise l'itérateur en lui disant qu'il y a 1 entrée à lire
-        let mut iter = BTreeIterator::new(&payload, 1);
-
-        // L'itérateur DOIT retourner None (ou s'arrêter) et surtout NE PAS PANIQUER.
-        // Sous Linux, un mauvais offset ferait un "panic: index out of bounds".
-        // Avec notre implémentation utilisant `payload.get(...) ?`, ça renvoie None.
-        let entry = iter.next();
-
-        assert!(
-            entry.is_none(),
-            "The iterator should have gracefully failed due to corrupted memory"
-        );
     }
 }

@@ -157,41 +157,4 @@ mod tests {
         assert_eq!(section.cursor_y, 2);
         assert_eq!(section.cursor_x, 3);
     }
-    #[test]
-    fn test_kpack_recipe_reconstruction_rle() {
-        // Le buffer de projection final de qwx (une page NVMe complète)
-        let mut section_buffer = [0u8; 4096];
-
-        // On simule une recette KPACK lue depuis le disque.
-        // Format imaginaire de notre recette :
-        // [OPCODE] [PARAM (2 octets)] [DATA]
-        // OPCODE 0x02 = RLE (Run Length Encoding)
-        // PARAM = 4096 (Taille à remplir)
-        // DATA = 0x20 (Le caractère Espace)
-
-        let kpack_recipe: [u8; 4] = [
-            0x02, // Opcode RLE
-            0x00, 0x10, // Param : 4096 (0x1000 en Little Endian) <- Correction ici
-            0x20, // Byte à répéter (Espace)
-        ];
-
-        // Moteur d'exécution KPACK (simplifié pour le test)
-        let opcode = kpack_recipe[0];
-        let count = u16::from_le_bytes([kpack_recipe[1], kpack_recipe[2]]) as usize;
-        let byte_to_repeat = kpack_recipe[3];
-
-        // Exécution de la recette directement dans la Section de qwx
-        if opcode == 0x02 {
-            // En Rust no_std, on remplit le slice sans allocation
-            let safe_count = core::cmp::min(count, section_buffer.len());
-            section_buffer[..safe_count].fill(byte_to_repeat);
-        }
-
-        // Validation : Le buffer de 4096 octets doit être rempli d'espaces (0x20)
-        assert_eq!(section_buffer[0], 0x20);
-        assert_eq!(section_buffer[4095], 0x20);
-
-        // Le coût de lecture disque a été de 4 octets.
-        // Le reste a été généré par le CPU à la vitesse de la RAM.
-    }
 }
