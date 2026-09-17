@@ -26,7 +26,6 @@ noun = { path = "noun" }
 ra = { path = "ra" }
 plan = { path = "plan" }
 jinshu = { path = "jinshu" }
-prism = { path = "prism" }
 awq = { path = "awq" }
 zuu = { path = "zuu" }
 blake3 = { version = "1.8.6", default-features = false }

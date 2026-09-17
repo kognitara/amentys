@@ -43,13 +43,18 @@ endif
 QEMU := qemu-system-x86_64
 QEMU_SMP := 2
 
+# Configure QEMU for launching the raw disk image
+QEMU := qemu-system-x86_64
+QEMU_SMP := 2
+
 QEMU_FLAGS := \
-  -machine q35,accel=kvm \
+  -enable-kvm -machine q35,accel=kvm \
   -cpu host \
   -smp $(QEMU_SMP) \
   -m 2G \
-  -display gtk \
+  -display gtk,full-screen=on,zoom-to-fit=on \
   -serial mon:stdio \
+  -vga virtio \
   -drive if=pflash,format=raw,readonly=on,file=$(OVMF_CODE) \
   -drive if=pflash,format=raw,file=$(OVMF_VARS) \
   -drive if=none,format=raw,file=$(IMAGE_PATH),id=bootdisk \
@@ -61,12 +66,13 @@ QEMU_FLAGS := \
 
 # Configure QEMU for launching the ISO file
 QEMU_ISO_FLAGS := \
-  -machine q35,accel=kvm \
+  -enable-kvm -machine q35,accel=kvm \
   -cpu host \
   -smp $(QEMU_SMP) \
   -m 2G \
-  -display gtk \
+  -display gtk,full-screen=on,zoom-to-fit=on \
   -serial mon:stdio \
+  -vga virtio \
   -drive if=pflash,format=raw,readonly=on,file=$(OVMF_CODE) \
   -drive if=pflash,format=raw,file=$(OVMF_VARS) \
   -drive if=none,format=raw,file=$(ISO_PATH),id=cdrom,media=cdrom \
@@ -75,6 +81,7 @@ QEMU_ISO_FLAGS := \
   -device nvme,drive=drv1,serial=nvme-1 \
   -device isa-debug-exit,iobase=0xf4,iosize=0x04 \
   -no-reboot -no-shutdown
+
 # User Profile: Absolute prohibition of panicking or crashing wildly
 CLIPPY_USER_FLAGS := -D warnings \
                      -D clippy::undocumented_unsafe_blocks \
@@ -188,7 +195,6 @@ define make_image
 	@$(call center_text, Building kernel (re))
 	RUSTFLAGS="-C relocation-model=static -C link-arg=-no-pie" $(CARGO) build --jobs $(NUM_JOBS) --target x86_64-unknown-none -Zbuild-std=core,alloc,compiler_builtins --bin re --release
 	@$(call center_text, Building init (maat))
-	# Using the standard target without a custom linker.ld
 	RUSTFLAGS="-C relocation-model=static -C link-arg=-no-pie" $(CARGO) build --jobs $(NUM_JOBS) --target x86_64-unknown-none -Zbuild-std=core,alloc,compiler_builtins --bin maat --release
 	@$(call center_text, Creating UEFI Boot Image with Limine)
 	@mkdir -p target/
@@ -200,18 +206,23 @@ define make_image
 	@if [ ! -f target/BOOTX64.EFI ]; then cp BOOTX64.EFI target/BOOTX64.EFI; fi
 	@mcopy -i $(IMAGE_PATH) target/BOOTX64.EFI ::/EFI/BOOT/BOOTX64.EFI
 	@mcopy -i $(IMAGE_PATH) limine.conf ::/limine.conf
+
+	@if [ -f limine-bios.sys ]; then mcopy -i $(IMAGE_PATH) limine-bios.sys ::/limine-bios.sys; fi
+
 	@if [ -f "assets/wallpaper.jpg" ]; then mcopy -i $(IMAGE_PATH) assets/wallpaper.jpg ::/boot/wallpaper.jpg; fi
-    @mcopy -i $(IMAGE_PATH) target/x86_64-unknown-none/release/re  ::/boot/re
-    @mcopy -i $(IMAGE_PATH) target/x86_64-unknown-none/release/maat ::/boot/maat
+	@mcopy -i $(IMAGE_PATH) target/x86_64-unknown-none/release/re  ::/boot/re
+	@mcopy -i $(IMAGE_PATH) target/x86_64-unknown-none/release/maat ::/boot/maat
+
+	@limine bios-install $(IMAGE_PATH) 2>/dev/null || true
+
 	@$(call center_text, Image $(IMAGE_PATH) ready!)
 endef
 
 # Macro to compile the bootable ISO with Limine
 define make_iso
-@$(call center_text, Building kernel (re))
+	@$(call center_text, Building kernel (re))
 	RUSTFLAGS="-C relocation-model=static -C link-arg=-no-pie" $(CARGO) build --jobs $(NUM_JOBS) --target x86_64-unknown-none -Zbuild-std=core,alloc,compiler_builtins --bin re --release
 	@$(call center_text, Building init (maat))
-	# Using the standard target without a custom linker.ld
 	RUSTFLAGS="-C relocation-model=static -C link-arg=-no-pie" $(CARGO) build --jobs $(NUM_JOBS) --target x86_64-unknown-none -Zbuild-std=core,alloc,compiler_builtins --bin maat --release
 	@$(call center_text, Creating Bootable ISO with Limine)
 	@mkdir -p ISO/boot ISO/EFI/BOOT
@@ -222,16 +233,21 @@ define make_iso
 	@cp target/x86_64-unknown-none/release/re ISO/boot/re
 	@cp target/x86_64-unknown-none/release/maat ISO/boot/maat
 	@if [ -f limine-uefi-cd.bin ]; then cp limine-uefi-cd.bin ISO/limine-uefi-cd.bin; fi
-	
+
+	# === AJOUT POUR LE BIOS LEGACY ===
+	@if [ -f limine-bios.sys ]; then cp limine-bios.sys ISO/limine-bios.sys; fi
+	@if [ -f limine-bios-cd.bin ]; then cp limine-bios-cd.bin ISO/limine-bios-cd.bin; fi
+
 	@xorriso -as mkisofs -R -J \
 		-no-emul-boot \
 		-V "AMENTYS" \
 		-boot-load-size 4 \
 		-boot-info-table \
+		-b limine-bios-cd.bin \
 		--efi-boot limine-uefi-cd.bin \
 		-efi-boot-part --efi-boot-image \
 		ISO -o $(ISO_PATH)
-		
+
 	@limine bios-install $(ISO_PATH) 2>/dev/null || true
 	@$(call center_text, ISO $(ISO_PATH) ready!)
 endef

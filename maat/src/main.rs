@@ -1,138 +1,117 @@
-#![cfg_attr(not(test), no_main, no_std)]
+#![no_std]
+#![no_main]
+
 extern crate alloc;
-use alloc::collections::BTreeMap;
+use alloc::vec::Vec;
+use core::arch::asm;
+use core::fmt::{self, Write};
 use core::panic::PanicInfo;
-use jinshu::{
-    ocean::CoreOceanBuilder,
-    router::{NounIndex, SemanticRouter},
-    storage::StorageEngine,
-};
-use limine::request::HhdmRequest;
-use noun::Noun;
-use plan::{Plan, layer::Layers};
-use prism::Prism;
-use ra::fs::nvme::driver::init_all_nvme_devices;
-use ra::{fs::nvme::allocator::Allocator, println};
-use x86_64::instructions::hlt;
-static HHDM_REQUEST: HhdmRequest = HhdmRequest::new();
 use linked_list_allocator::LockedHeap;
-// 1. On déclare l'allocateur global pour ce binaire
+
 #[global_allocator]
 static ALLOCATOR: LockedHeap = LockedHeap::empty();
 
-// 2. On crée une fonction pour l'initialiser
-pub fn init_heap() {
-    const HEAP_SIZE: usize = 128 * 1024; // 128 Ko de RAM allouée à Maat
-
-    // Un bloc de mémoire statique rempli de zéros
-    static mut HEAP: [u8; HEAP_SIZE] = [0; HEAP_SIZE];
-
-    // SAFETY: On donne ce bloc exclusif à notre allocateur
-    unsafe {
-        let heap_ptr = core::ptr::addr_of_mut!(HEAP).cast::<u8>();
-        ALLOCATOR.lock().init(heap_ptr, HEAP_SIZE);
+pub struct SyscallWriter;
+impl Write for SyscallWriter {
+    fn write_str(&mut self, s: &str) -> fmt::Result {
+        // safety: aa
+        unsafe {
+            asm!(
+            "syscall",
+            in("rax") 1, in("rdi") 0, in("rsi") s.as_ptr() as u64, in("rdx") s.len() as u64,
+            out("rcx") _, out("r11") _,
+            );
+        }
+        Ok(())
     }
 }
 
-/// Entry point of the kernel. This function is called by the bootloader after the kernel is loaded into memory.
-///
-/// # Safety
-/// This function is marked as unsafe because it is the entry point of the kernel and is called by the bootloader.
-///
-/// It is the responsibility of the caller to ensure that the kernel is loaded correctly and that the bootloader has set up the environment correctly.
-///
-/// The function does not return, as it enters an infinite loop after executing the kernel code.
-///
-/// # Panics
-///
-/// This function may panic if the kernel encounters an unrecoverable error during execution.
-///
-/// In such cases, the panic handler will be invoked, which will print the panic message and enter an infinite loop.  
-///
-#[unsafe(no_mangle)]
+#[macro_export]
+macro_rules! print { ($($arg:tt)*) => { let _ = core::fmt::write(&mut $crate::SyscallWriter, core::format_args!($($arg)*)); }; }
+#[macro_export]
+macro_rules! println {
+    () => ($crate::print!("\r\n"));
+    ($($arg:tt)*) => ($crate::print!("{}\r\n", core::format_args!($($arg)*)));
+}
+
+#[allow(dead_code)]
+const RESET: &str = "\x1b[0m";
+#[allow(dead_code)]
+const CYAN: &str = "\x1b[36;1m";
+#[allow(dead_code)]
+const GREEN: &str = "\x1b[32;1m";
+
+fn get_screen_size() -> (u32, u32) {
+    let mut packed_dims: u64;
+    // Safety: get screen size
+    unsafe {
+        asm!(
+        "syscall",
+        inlateout("rax") 2u64 => packed_dims,
+        out("rcx") _,
+        out("r11") _
+        );
+    }
+    (
+        (packed_dims >> 32) as u32,
+        (packed_dims & 0xFFFF_FFFF) as u32,
+    )
+}
+fn flush_screen(buffer: &[u32]) {
+    // Safety: clear screen
+    unsafe {
+        // Safety: flush screen
+        asm!("syscall", in("rax") 3, in("rdi") 0, in("rsi") buffer.as_ptr() as u64, out("rcx") _, out("r11") _);
+    }
+}
+
+#[cfg_attr(not(test), unsafe(no_mangle))]
 pub extern "C" fn _start() -> ! {
-    // 1. LA CARTE DE LA RÉALITÉ (HHDM)
-    // On demande à Limine le décalage magique entre le physique et le virtuel
+    // Initialisation d'un Tas de 8 MiB exclusif à Maât
+    const HEAP_SIZE: usize = 8 * 1024 * 1024;
+    #[repr(C, align(4096))]
+    struct Heap([u8; HEAP_SIZE]);
+    static mut HEAP: Heap = Heap([0; HEAP_SIZE]);
+    // Safety: init heap
+    unsafe {
+        ALLOCATOR
+            .lock()
+            .init(core::ptr::addr_of_mut!(HEAP).cast::<u8>(), HEAP_SIZE);
+    }
 
-    let hhdm_offset = HHDM_REQUEST
-        .response()
-        .expect("Limine did not provide the HHDM offset!")
-        .offset;
+    let (width, height) = get_screen_size();
 
-    // 2. ALLOCATION MÉMOIRE PHYSIQUE (Safe Zone)
-    let mut allocator = Allocator::new(0x0100_0000, 0x0200_0000);
+    // Allocation du buffer vidéo dans l'espace utilisateur
+    let total_pixels = (width * height) as usize;
+    let mut buffer: Vec<u32> = alloc::vec![0; total_pixels];
 
-    // 3. HARDWARE : Réveil du NVMe
-    // On passe le hhdm_offset au driver pour qu'il mappe ses files DMA correctement en virtuel
-    let nvme_devices = init_all_nvme_devices(hhdm_offset, &mut allocator);
-    let mut storage_engine = StorageEngine::new(1, &nvme_devices[0]);
-    let disk_index = NounIndex::new();
+    // Dessin du fond graphique (Dégradé vertical)
+    for y in 0..height {
+        for x in 0..width {
+            let index = (y * width + x) as usize;
 
-    // 4. JINSHU : Instanciation du CoreOcean
-    let mut core_ocean = BTreeMap::new();
+            // Calcul d'un cyan stylisé qui s'assombrit vers le bas
+            let intensity = 255 - ((y * 255) / height);
+            let r = 0x00; // Rouge = 0
+            let g = intensity / 2; // Vert modéré
+            let b = intensity; // Bleu dominant (Cyan)
 
-    // On demande une page physique pour faire le pont NVMe -> RAM
-    let buffer_phys = allocator
-        .allocate_page()
-        .expect("OOM: Not enough physical RAM for the DMA bridge");
-
-    // MAGIE HHDM : On calcule la vraie adresse virtuelle utilisable par le CPU
-    let buffer_virt = buffer_phys + hhdm_offset;
-
-    // Hashs fondamentaux de l'OS (Terminal et Réseau)
-    let tui_layer_noun = Noun::of(&[0x01; 32]);
-    let network_layer_noun = Noun::of(&[0x02; 32]);
-
-    // Aspiration dans la RAM partagée : Les données arriveront dans la RAM physique
-    // via le SSD, mais notre CPU les lira via l'adresse virtuelle !
-    CoreOceanBuilder::deep_load(
-        &tui_layer_noun,
-        &mut storage_engine,
-        &disk_index,
-        &mut core_ocean,
-        buffer_phys,
-        buffer_virt,
-    )
-    .expect("Failed to deep load TUI layer");
-
-    CoreOceanBuilder::deep_load(
-        &network_layer_noun,
-        &mut storage_engine,
-        &disk_index,
-        &mut core_ocean,
-        buffer_phys,
-        buffer_virt,
-    )
-    .expect("Failed to deep load network layer");
-
-    // 5. JINSHU (Le Routeur)
-    let mut router = SemanticRouter::new(storage_engine, &core_ocean);
-
-    // 6. LE PLAN : Forge du Terminal
-    let terminal_root_noun = Noun::of(&[0xAA; 32]);
-    let mut phoenix_layers = Layers::new(terminal_root_noun.clone());
-    let terminal_plan = Plan::new(terminal_root_noun, &mut phoenix_layers, 0)
-        .expect("Failed to create terminal plan");
-    let sceau = plan::sceau::Sceau::birth(&terminal_plan, 1_000);
-    match maat::law::weigh(&sceau, &terminal_plan) {
-        plan::sceau::Verdict::Accept => {
-            // 7. LE PRISME : Exécution de l'Application sans binaire
-            let mut root_prism = Prism::new(terminal_plan);
-            root_prism
-                .run(&mut router)
-                .expect("Failed to run the root prism");
-            loop {
-                hlt();
-            }
+            // Format XRGB (0x00RRGGBB)
+            buffer[index] = (r << 16) | (g << 8) | b;
         }
-        plan::sceau::Verdict::Refuse(why) => panic!("maat refused: {why}"),
+    }
+    // Envoi du buffer au noyau pour affichage immédiat
+    flush_screen(&buffer);
+
+    loop {
+        core::hint::spin_loop();
     }
 }
 
 #[cfg_attr(not(test), panic_handler)]
-fn panic(info: &PanicInfo) -> ! {
-    println!("{}", info.message());
+#[allow(dead_code)]
+fn panic(_info: &PanicInfo) -> ! {
     loop {
-        hlt();
+        core::hint::spin_loop();
     }
 }

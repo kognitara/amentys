@@ -5,21 +5,21 @@ use core::{arch::asm, fmt::Write};
 /// # Safety
 /// This function is unsafe because it uses inline assembly and directly interacts with the system call interface.
 pub fn sys_weigh_heart(code: usize) -> ! {
+    // Safety: We are using inline assembly to perform a syscall.
     unsafe {
-        // Safety: We are using inline assembly to perform a syscall.
         // The parameters are set according to the syscall convention for Linux x86_64.
         asm!(
             "syscall",
             in("rax") 60,
             in("rdi") code,
             options(noreturn)
-        );
+        )
     }
 }
 
 pub fn sys_write(text: &str) {
+    // Safety: We are using inline assembly to perform a syscall.
     unsafe {
-        // Safety: We are using inline assembly to perform a syscall.
         // The parameters are set according to the syscall convention for Linux x86_64.
         asm!(
             "syscall",

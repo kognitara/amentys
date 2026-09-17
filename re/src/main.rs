@@ -5,69 +5,74 @@ use core::panic::PanicInfo;
 use core::ptr;
 use os_terminal::Terminal;
 use os_terminal::font::BitmapFont;
-use ra::println;
 use x86_64::VirtAddr;
 use x86_64::structures::paging::{FrameAllocator, Mapper, Page, PageTableFlags, Size4KiB};
 use xmas_elf::ElfFile;
 ///
 /// # Panics
 /// fail is not a valid framebuffer address.
-#[allow(clippy::too_many_lines)]
 #[cfg_attr(not(test), unsafe(no_mangle))]
+#[allow(clippy::too_many_lines)]
 pub extern "C" fn _start(_info: *const ()) -> ! {
     x86_64::instructions::interrupts::disable();
     re::gdt::init();
     re::interrupts::init();
     re::syscall::init();
+
+    // 1. Initialisation de la Pagination
+    let hhdm_offset = re::HHDM_REQUEST
+        .response()
+        .expect("Error: Limine didn't provide the HHDM offset")
+        .offset;
+
+    let memory_map = re::MEMORY_MAP_REQUEST
+        .response()
+        .expect("Error: Limine didn't provide the Memory Map")
+        .entries();
+
+    let mut frame_allocator = re::memory::BootInfoFrameAllocator::new(memory_map);
+    let phys_mem_offset = VirtAddr::new(hhdm_offset);
+
+    // SAFETY: L'offset HHDM fourni par Limine est valide et correspond à la cartographie virtuelle initiale.
+    let mut mapper = unsafe { re::memory::init_paging(phys_mem_offset) };
+
+    // 2. Initialisation du Tas (Heap) : Doit être fait APRÈS la pagination
     re::init_heap();
+
+    // 3. Initialisation du Framebuffer et du Terminal (Nécessite le Tas pour Box::new)
     if let Some(framebuffer_response) = re::FRAMEBUFFER_REQUEST.response()
         && let Some(framebuffer) = framebuffer_response.framebuffers().first()
     {
+        // --- NOUVEAU : On empaquette les dimensions pour Maât ---
+        let packed_dims = ((framebuffer.width) << 32) | (framebuffer.height);
+        re::syscall::SCREEN_DIMS.store(packed_dims, core::sync::atomic::Ordering::Relaxed);
+        // --------------------------------------------------------
         let size_u64 = framebuffer.pitch * framebuffer.height;
         let size = usize::try_from(size_u64).unwrap_or(0);
 
-        // SAFETY: `framebuffer.address()` is a raw MMIO address guaranteed to be valid by the boot protocol.
+        // SAFETY: L'adresse du framebuffer est garantie par le protocole d'amorçage.
         unsafe {
             ptr::write_bytes(framebuffer.address(), 0, size);
         }
 
-        // We create the os-terminal compatible drawing target
         let screen_data = ra::ScreenData {
             ptr: framebuffer.address().cast::<u8>(),
             width: framebuffer.width,
             height: framebuffer.height,
             pitch: framebuffer.pitch,
         };
-        // We lock and initialize the global kernel terminal
         *ra::TERMINAL.lock() = Some(Terminal::new(screen_data, Box::new(BitmapFont)));
     }
 
-    // memory management setup
-    let hhdm_offset = re::HHDM_REQUEST
-        .response()
-        .expect("Error: Limine didn't provide the HHDM offset")
-        .offset;
-    // SAFETY: The HHDM offset provided by Limine is guaranteed to be valid and corresponds to the initial virtual mapping.
-    let memory_map = re::MEMORY_MAP_REQUEST
-        .response()
-        .expect("Error: Limine didn't provide the Memory Map")
-        .entries();
-    let mut frame_allocator = re::memory::BootInfoFrameAllocator::new(memory_map);
-
-    let phys_mem_offset = VirtAddr::new(hhdm_offset);
-
-    // SAFETY: L'offset HHDM fourni par Limine correspond à la cartographie virtuelle initiale.
-    let mut mapper = unsafe { re::memory::init_paging(phys_mem_offset) };
-
-    // 4. Loading the Maât ELF module and preparing the user-space environment
+    // 4. Chargement du module ELF Maât et préparation de l'espace utilisateur
     if let Some(modules_response) = re::MODULE_REQUEST.response() {
         for module in modules_response.modules() {
-            if module.path() == "maat" {
+            let path = module.path();
+            if path.ends_with("maat") || path.ends_with("/maat") {
                 let elf_data: &[u8] = module.data();
                 let elf = ElfFile::new(elf_data).expect("failed to parse the Maât ELF module");
                 let entry_point = elf.header.pt2.entry_point();
 
-                // each program header describes a segment to be loaded into memory
                 for ph in elf.program_iter() {
                     if ph.get_type() == Ok(xmas_elf::program::Type::Load) {
                         let start_addr = VirtAddr::new(ph.virtual_addr());
@@ -82,18 +87,15 @@ pub extern "C" fn _start(_info: *const ()) -> ! {
                         }
 
                         for page in Page::range_inclusive(start_page, end_page) {
-                            // 1. Check if the virtual page already exists in our page table
                             let is_mapped = mapper.translate_page(page).is_ok();
 
                             let frame = if is_mapped {
-                                // 2. If it already exists, just retrieve the corresponding RAM block without re-mapping
                                 mapper.translate_page(page).unwrap()
                             } else {
-                                // 3. If it doesn't exist, allocate a RAM block and map it
                                 let new_frame =
                                     frame_allocator.allocate_frame().expect("Plus de RAM !");
 
-                                // SAFETY: Safe mapping of a new physical frame into the system page table.
+                                // SAFETY: Mappage sécurisé d'une nouvelle frame physique.
                                 unsafe {
                                     mapper
                                         .map_to(page, new_frame, flags, &mut frame_allocator)
@@ -103,11 +105,10 @@ pub extern "C" fn _start(_info: *const ()) -> ! {
                                 new_frame
                             };
 
-                            // SAFETY: The calculated HHDM address is guaranteed to be valid as it derives from a freshly allocated or existing physical frame.
+                            // SAFETY: L'adresse HHDM calculée est garantie valide.
                             unsafe {
                                 let hhdm_addr = phys_mem_offset + frame.start_address().as_u64();
 
-                                // NOTE: Only zero out the page if it was just created.
                                 if !is_mapped {
                                     ptr::write_bytes(hhdm_addr.as_mut_ptr::<u8>(), 0, 4096);
                                 }
@@ -146,9 +147,9 @@ pub extern "C" fn _start(_info: *const ()) -> ! {
                     }
                 }
 
-                // 5. Creation of the user-space Ring 3 stack
+                // 5. Création de la pile (Stack) Ring 3 pour Maât
                 let stack_end = VirtAddr::new(0x0000_7FFF_FFFF_F000);
-                let stack_start = stack_end - (4096u64 * 4); // Raw 16 KiB stack
+                let stack_start = stack_end - (4096u64 * 4);
 
                 let stack_start_page: Page<Size4KiB> = Page::containing_address(stack_start);
                 let stack_end_page: Page<Size4KiB> = Page::containing_address(stack_end - 1u64);
@@ -160,7 +161,7 @@ pub extern "C" fn _start(_info: *const ()) -> ! {
                 for page in Page::range_inclusive(stack_start_page, stack_end_page) {
                     let frame = frame_allocator.allocate_frame().unwrap();
 
-                    // SAFETY: Physical allocation and isolation of the memory stack for the application.
+                    // SAFETY: Allocation physique et isolation de la pile mémoire.
                     unsafe {
                         mapper
                             .map_to(page, frame, stack_flags, &mut frame_allocator)
@@ -171,19 +172,19 @@ pub extern "C" fn _start(_info: *const ()) -> ! {
                     }
                 }
 
-                // 6. Privilege jump to user-space (hardware IRETQ)
-                // SAFETY: Final configuration of the status registers and jump to Ring 3.
+                // 6. Saut de privilège vers l'espace utilisateur (IRETQ)
+                // SAFETY: Configuration finale des registres d'état et basculement en Ring 3.
                 unsafe {
                     core::arch::asm!(
-                        "push 0x23", // SS utilisateur (GDT index 0x20 | RPL 3)
-                        "push {stack}",
-                        "push 0x002", // RFLAGS (Sans l'IF flag puisque l'IDT / PIC ne sont pas là !)
-                        "push 0x2B", // CS utilisateur (GDT index 0x28 | RPL 3)
-                        "push {entry}",
-                        "iretq",
-                        stack = in(reg) stack_end.as_u64(),
-                        entry = in(reg) entry_point,
-                        options(noreturn)
+                    "push 0x23",
+                    "push {stack}",
+                    "push 0x002",
+                    "push 0x2B",
+                    "push {entry}",
+                    "iretq",
+                    stack = in(reg) stack_end.as_u64(),
+                    entry = in(reg) entry_point,
+                    options(noreturn)
                     );
                 }
             }
@@ -193,10 +194,32 @@ pub extern "C" fn _start(_info: *const ()) -> ! {
         x86_64::instructions::hlt();
     }
 }
+use core::fmt::Write;
+
+pub struct SerialPort;
+
+impl Write for SerialPort {
+    fn write_str(&mut self, s: &str) -> core::fmt::Result {
+        for byte in s.bytes() {
+            if byte == b'\n' {
+                // SAFETY:LLe port série exige un retour chariot (\r) avant le saut de ligne (\n)
+                unsafe {
+                    core::arch::asm!("out dx, al", in("dx") 0x3F8_u16, in("al") b'\r');
+                }
+            }
+            // SAFETY: The calculated HHDM address is guaranteed to be valid as it derives from a freshly allocated or existing physical frame.
+            unsafe {
+                core::arch::asm!("out dx, al", in("dx") 0x3F8_u16, in("al") byte);
+            }
+        }
+        Ok(())
+    }
+}
 
 #[cfg_attr(not(test), panic_handler)]
 fn panic(info: &PanicInfo) -> ! {
-    println!("{}", info.message());
+    let _ = writeln!(SerialPort, "\n\n[KERNEL PANIC] {info}");
+
     loop {
         x86_64::instructions::hlt();
     }

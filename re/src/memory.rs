@@ -72,8 +72,17 @@ pub unsafe fn init_paging(physical_memory_offset: VirtAddr) -> OffsetPageTable<'
     // SAFETY: Get the active level 4 page table via the physical memory offset.
     let level_4_table = unsafe { active_level_4_table(physical_memory_offset) };
 
+    // --- LE NETTOYAGE DE LIMINE ---
+    // On détruit l'identity mapping de Limine (Huge Pages sur les 4 premiers GiB).
+    // L'entrée 0 du PML4 contrôle les adresses de 0x0 à 512 GiB. On la désactive.
+    level_4_table[0].set_unused();
+
+    // On force le CPU à vider son cache pour "oublier" les anciennes Huge Pages
+    x86_64::instructions::tlb::flush_all();
+    // ------------------------------
+
     unsafe {
-        // SAFETY: The caller must ensure that the provided `physical_memory_offset` is valid and corresponds to the actual physical memory mapping.
+        // SAFETY: The caller must ensure that the provided `physical_memory_offset` is valid.
         OffsetPageTable::new(level_4_table, physical_memory_offset)
     }
 }

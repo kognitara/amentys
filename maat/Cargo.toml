@@ -9,10 +9,4 @@ version.workspace = true
 
 [dependencies]
 plan = { workspace = true }
-jinshu = { workspace = true }
-noun = { workspace = true }
-prism = { workspace = true }
-ra = { workspace = true }
-x86_64 = { workspace = true }
-limine = { workspace = true }
 linked_list_allocator = { workspace = true }

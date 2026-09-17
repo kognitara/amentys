@@ -261,14 +261,8 @@ dependencies = [
 name = "maat"
 version = "0.0.0"
 dependencies = [
- "jinshu",
- "limine",
  "linked_list_allocator",
- "noun",
  "plan",
- "prism",
- "ra",
- "x86_64",
 ]
 
 [[package]]

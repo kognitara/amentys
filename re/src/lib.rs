@@ -18,19 +18,22 @@ use linked_list_allocator::LockedHeap;
 #[global_allocator]
 static ALLOCATOR: LockedHeap = LockedHeap::empty();
 
-/// Initializes the kernel heap.
 pub fn init_heap() {
-    const HEAP_SIZE: usize = 100 * 1024; // 100 Ko de RAM dédiés au noyau
-    // On réserve un bloc statique rempli de zéros dans le binaire (.bss)
-    static mut HEAP: [u8; HEAP_SIZE] = [0; HEAP_SIZE];
+    const HEAP_SIZE: usize = 32 * 1024 * 1024;
 
-    // SAFETY: On donne ce bloc exclusif à notre allocateur global
+    // Force le compilateur à aligner ce bloc sur une vraie frame physique (4 KiB)
+    #[repr(C, align(4096))]
+    struct Heap([u8; HEAP_SIZE]);
+
+    // On réserve le bloc statique aligné
+    static mut HEAP: Heap = Heap([0; HEAP_SIZE]);
+
+    // SAFETY: Initialisation sécurisée de l'allocateur de mémoire.
     unsafe {
         let heap_ptr = core::ptr::addr_of_mut!(HEAP).cast::<u8>();
         ALLOCATOR.lock().init(heap_ptr, HEAP_SIZE);
     }
 }
-
 /// Global Limine requests for various system information.
 pub static HHDM_REQUEST: HhdmRequest = HhdmRequest::new();
 /// Global Limine requests for various system information.
