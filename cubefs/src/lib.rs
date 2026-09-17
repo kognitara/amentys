@@ -234,14 +234,14 @@ impl<'a> KpackReader<'a> {
         offset: u64,
         section_buffer: &mut [u8],
     ) -> Result<usize, &'static str> {
-        let extent = self.find_extent(offset).ok_or("Offset hors limites")?;
+        let extent = self.find_extent(offset).ok_or("Offset out of bounds")?;
 
         let chunk_size: u64 = 65536;
         let chunk_index =
             u32::try_from((offset - extent.file_off) / chunk_size).unwrap_or_default();
 
         if chunk_index >= extent.count {
-            return Err("Index de chunk corrompu ou invalide");
+            return Err("Chunk of chunk corrupted or invalid");
         }
         Ok(section_buffer.len())
     }
@@ -283,10 +283,10 @@ mod tests {
 
         let reader = KpackReader::new(&extents);
 
-        let ext1 = reader.find_extent(500).expect("Extent introuvable");
+        let ext1 = reader.find_extent(500).expect("Extent not found");
         assert_eq!(ext1.first_chunk_id[0], 0xAA);
 
-        let ext2 = reader.find_extent(66000).expect("Extent introuvable");
+        let ext2 = reader.find_extent(66000).expect("Extent not found");
         assert_eq!(ext2.first_chunk_id[0], 0xBB);
 
         assert!(reader.find_extent(999999).is_none());
@@ -359,7 +359,7 @@ mod tests {
 
         assert_ne!(
             hash_a, hash_b,
-            "Violation de l'architecture Merkle : le hash doit changer si 1 bit change"
+            "Violation of the Merkle architecture : the hash must change if 1 bit changes"
         );
     }
 
@@ -436,7 +436,7 @@ mod tests {
 
         assert!(
             entry.is_none(),
-            "L'itérateur aurait dû échouer gracieusement face à une mémoire corrompue"
+            "The iterator should have gracefully failed due to corrupted memory"
         );
     }
 }
